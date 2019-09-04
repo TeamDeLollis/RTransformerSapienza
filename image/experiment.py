@@ -131,6 +131,7 @@ def test():
 if __name__ == "__main__":
     for epoch in range(1, epochs+1):
         train(epoch)
+        save(model, model_filename)
         test()
         if epoch % 10 == 0:
             lr /= 10
