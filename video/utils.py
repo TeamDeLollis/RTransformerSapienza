@@ -36,7 +36,7 @@ def get_data_batched(data_path, num_pixels, num_seq, max_seq_len):
 
 def get_data_list(data_path, num_pixels, max_seq_len):
     data = []
-    data_line = torch.zeros([max_seq_len, num_pixels, num_pixels])
+    data_line = np.zeros([max_seq_len, num_pixels, num_pixels])
     last_index = 0
     seq_num = 0
     images = glob.glob(os.path.join(data_path, "*.jpg"))
@@ -51,7 +51,7 @@ def get_data_list(data_path, num_pixels, max_seq_len):
         if index < last_index:
             seq_num += 1
             seq_length = last_index + 1
-            data.append(data_line[:seq_length, :, :].view(seq_length, num_pixels ** 2))
+            data.append(torch.from_numpy(data_line[:seq_length, :, :]).view(seq_length, num_pixels ** 2))
             data_line = np.zeros([max_seq_len, num_pixels, num_pixels])
 
 
