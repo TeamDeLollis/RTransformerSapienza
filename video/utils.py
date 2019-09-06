@@ -14,7 +14,7 @@ def get_data_batched(data_path, num_pixels, num_seq, max_seq_len):
     images = glob.glob(os.path.join(data_path, "*.jpg"))
     for image_name in images:
         split = image_name.split('_')
-        index = int(split[2]) - 1
+        index = int(split[2].split('.')[0]) - 1
 
         image = Image.open(image_name)  # Open an Image via PILLOW
         image = image.convert('L')  # Grayscale transformation
@@ -42,7 +42,7 @@ def get_data_list(data_path, num_pixels, max_seq_len):
     images = glob.glob(os.path.join(data_path, "*.jpg"))
     for image_name in images:
         split = image_name.split('_')
-        index = int(split[2]) - 1
+        index = int(split[2].split('.')[0]) - 1
 
         image = Image.open(image_name)  # Open an Image via PILLOW
         image = image.convert('L')  # Grayscale transformation
