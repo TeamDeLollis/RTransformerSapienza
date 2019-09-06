@@ -1,5 +1,5 @@
-from .utils import *
-from .model import RT
+from utils import *
+from model import RT
 import argparse
 import torch.nn as nn
 import torch.optim as optim
