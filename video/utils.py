@@ -52,10 +52,12 @@ def get_data_list(data_path, num_pixels, max_seq_len):
             seq_num += 1
             seq_length = last_index + 1
             data.append(data_line[:seq_length, :, :].view(seq_length, num_pixels ** 2))
+            data_line = np.zeros([max_seq_len, num_pixels, num_pixels])
+
 
         for i in range(0, num_pixels):
             for j in range(0, num_pixels):
-                data[seq_num][index][i][j] = image_vec[i][j]
+                data_line[index][i][j] = image_vec[i][j]
         last_index = index
 
     return data
