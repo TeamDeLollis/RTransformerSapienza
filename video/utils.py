@@ -1,52 +1,61 @@
-from scipy.io import loadmat
+import os
+
 import torch
 import numpy as np
 from PIL import Image
 import glob
 
-def data_generator(dataset, data_dir):
-    print('loading Nott data...')
-    data = loadmat(data_dir + 'Nottingham.mat')
 
-    X_train = data['traindata'][0]
-    X_valid = data['validdata'][0]
-    X_test = data['testdata'][0]
+def get_data_batched(data_path, num_pixels, num_seq, max_seq_len):
+    data = np.zeros([num_seq, max_seq_len, num_pixels, num_pixels])
 
-    for data in [X_train, X_valid, X_test]:
-        print (dataset, len(data))
-        for i in range(len(data)):
-            data[i] = torch.Tensor(data[i].astype(np.float64))
+    last_index = 0
+    seq_num = 0
+    images = glob.glob(os.path.join(data_path, "*.jpg"))
+    for image_name in images:
+        split = image_name.split('_')
+        index = int(split[2]) - 1
 
-    return X_train, X_valid, X_test
+        image = Image.open(image_name)  # Open an Image via PILLOW
+        image = image.convert('L')  # Grayscale transformation
+        image_vec = np.array(image)
 
+        if index < last_index:
+            seq_num += 1
 
-def get_data(number_of_sequences, max_sequence_length, number_of_pixels):
+        for i in range(0, num_pixels):
+            for j in range(0, num_pixels):
+                data[seq_num][index][i][j] = image_vec[i][j]
+        last_index = index
 
-	data = np.zeros([number_of_sequences, max_sequence_length, number_of_pixels, number_of_pixels])
-	"""for j in range(0,num_sequences):
-		train[j] = np.zeros(max_sequence_length)
-		print(train[j])
-		for k in range(0,max_sequence_length):
-			train[j][k] = np.zeros([500,500])
-	"""
-	images = glob.glob("*.jpg")
-	for image in images:
-		actual_seq = image[8:11]
-		index_n = image[12:15]
-		img = Image.open(image)     #Open an Image via PILLOW
-		img = img.convert('L')      #Grayscale transformation
-		imVect = np.array(img)
-		actual_seq = int(actual_seq) - 1
-		index_n = int(index_n) - 1
-		print(data[0])
+    data = torch.from_numpy(data)
+    data.view(num_seq, max_seq_len, num_pixels**2)
 
-		for i in range(0,500):
-			for j in range(0,500):
-				data[actual_seq][index_n][i][j] = imVect[i][j]
+    return data
 
 
+def get_data_list(data_path, num_pixels, max_seq_len):
+    data = []
+    data_line = np.zeros([max_seq_len, num_pixels, num_pixels])
+    last_index = 0
+    seq_num = 0
+    images = glob.glob(os.path.join(data_path, "*.jpg"))
+    for image_name in images:
+        split = image_name.split('_')
+        index = int(split[2]) - 1
 
-	data = torch.from_numpy(data)
-	data.view(1,2,500*500)
+        image = Image.open(image_name)  # Open an Image via PILLOW
+        image = image.convert('L')  # Grayscale transformation
+        image_vec = np.array(image)
 
-	return data
+        if index < last_index:
+            seq_num += 1
+            seq_length = last_index + 1
+            data.append(data_line[:seq_length, :, :].view(seq_length, num_pixels ** 2))
+
+        for i in range(0, num_pixels):
+            for j in range(0, num_pixels):
+                data[seq_num][index][i][j] = image_vec[i][j]
+        last_index = index
+
+    return data
