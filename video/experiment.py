@@ -1,6 +1,8 @@
-from .utils import *
-from .model import RT
+from utils import *
+from model import RT
 import argparse
+import torch
+import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 import sys
@@ -13,19 +15,20 @@ warnings.filterwarnings("ignore")  # Suppress the RunTimeWarning on unicode
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cuda', action='store_false')
-parser.add_argument('--dropout', type=float, default=0.1)
+parser.add_argument('--dropout', type=float, default=0.2)
 parser.add_argument('--clip', type=float, default=0.15)
 parser.add_argument('--epochs', type=int, default=100)
 parser.add_argument('--ksize', type=int, default=6)  # window --> we should keep it small maybe 4
 parser.add_argument('--n_level', type=int, default=3)
 parser.add_argument('--log-interval', type=int, default=100, metavar='N')
 parser.add_argument('--lr', type=float, default=5e-05)
-parser.add_argument('--optim', type=str, default='SGD')
+parser.add_argument('--optim', type=str, default='Adam')
 parser.add_argument('--rnn_type', type=str, default='GRU')  # LSTM; RNN; RNN_TANH; RNN_RELU
-parser.add_argument('--d_model', type=int, default=160)  # da provare piu grande
+parser.add_argument('--d_model', type=int, default=400)  # da provare piu grande
 parser.add_argument('--n', type=int, default=1)
 parser.add_argument('--h', type=int, default=4)  # we shouldn't need so many because no need for long term memory
-parser.add_argument('--seed', type=int, default=1111)
+parser.add_argument('--seed', type=int, default=44)
+parser.add_argument('--data', type=str, default='pouring')
 
 args = parser.parse_args()
 np.random.seed(args.seed)
@@ -40,7 +43,7 @@ s_dir = os.path.join(base_path, 'output/')
 
 num_seq_train = 11
 num_seq_test = 10
-max_seq_len = 49
+max_seq_len = 50
 num_pixels = 28
 input_size = 784  # 28 * 28
 # X_train = get_data(train_dir, num_pixels, num_seq_train, max_seq_len)
@@ -77,7 +80,7 @@ def save(save_model, save_filename):
 
 
 def output_s(output_message, save_filename):
-    print(message)
+    print(output_message)
     with open(save_filename, 'a') as file:
         file.write(output_message + '\n')
 
@@ -92,11 +95,14 @@ def evaluate(X_data, name='Eval'):
         for idx in eval_idx_list:
             data_line = X_data[idx]
             # print(data_line.shape)
-            x, y = data_line[:-1], data_line[1:]  # everything except first word, y = everything to all
+            x, y = data_line[:-1].float(), data_line[1:].float()  # everything except first word, y = everything to all
             output = model(x.unsqueeze(0)).squeeze(0)
-            loss = -torch.trace(torch.matmul(y, torch.log(output).float().t()) +
-                                torch.matmul((1 - y), torch.log(1 - output).float().t()))  # negative likelihood
+
+            #loss = -torch.trace(torch.matmul(y, torch.log(output).float().t()) +
+            #                    torch.matmul((1 - y), torch.log(1 - output).float().t()))  # negative likelihood
+            loss = #output-input
             total_loss += loss.item()
+
             count += output.size(0)
         eval_loss = total_loss / count
         message = name + " loss: {:.5f}".format(eval_loss)
@@ -112,14 +118,16 @@ def train(ep):
     np.random.shuffle(train_idx_list)
     for idx in train_idx_list:
         data_line = X_train[idx]
-        x, y = data_line[:-1], data_line[1:]  # da prendere fino all'ultima prima di zero
+        x, y = data_line[:-1].float(), data_line[1:].float()  # da prendere fino all'ultima prima di zero
         if args.cuda:
             x, y = x.cuda(), y.cuda()
 
         optimizer.zero_grad()
         output = model(x.unsqueeze(0)).squeeze(0)
+
         loss = -torch.trace(torch.matmul(y, torch.log(output).float().t()) +
                             torch.matmul((1 - y), torch.log(1 - output).float().t()))
+
         total_loss += loss.item()
         count += output.size(0)
 

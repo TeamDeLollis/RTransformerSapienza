@@ -2,6 +2,8 @@ from torch import nn
 import torch.nn.functional as F
 import sys,os
 from torch import nn
+
+
 base_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(base_path,'../models'))
 from RTransformer import RTransformer 
@@ -11,6 +13,7 @@ class RT(nn.Module):
         super(RT, self).__init__()
         self.encoder = nn.Linear(input_size, d_model)
         self.rt = RTransformer(d_model, rnn_type, ksize, n_level, n, h, dropout)
+        #self.rt = RTransformer(input_size, rnn_type, ksize, n_level, n, h, dropout)
         self.linear = nn.Linear(d_model, output_size)
         self.sig = nn.Sigmoid()
 
@@ -18,4 +21,8 @@ class RT(nn.Module):
         x = self.encoder(x)
         output = self.rt(x)
         output = self.linear(output).double()
-        return self.sig(output)
+        #return self.sig(output.double())
+        #print(255*nn.functional.sigmoid(output.double()))
+
+        return nn.functional.sigmoid(output.double())*255
+
