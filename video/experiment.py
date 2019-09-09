@@ -38,7 +38,8 @@ args = parser.parse_args()
 
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
-device = torch.device('cuda')
+if args.cuda:
+    device = torch.device('cuda')
 
 
 
