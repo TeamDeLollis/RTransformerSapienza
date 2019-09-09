@@ -155,7 +155,7 @@ class LocalRNNLayer(nn.Module):
     def __init__(self, input_dim, output_dim, rnn_type, ksize, dropout, cuda=False):
         super(LocalRNNLayer, self).__init__()
         self.local_rnn = LocalRNN(input_dim, output_dim, rnn_type, ksize, dropout, cuda)
-        self.connection = SublayerConnection(output_dim, dropout, cuda)
+        self.connection = SublayerConnection(output_dim, dropout)
 
     def forward(self, x):
         "Follow Figure 1 (left) for connections."
@@ -201,7 +201,7 @@ class RTransformer(nn.Module):
         layers = []
         for i in range(n_level):
             layers.append(
-                Block(d_model, d_model, rnn_type, ksize, N=N, h=h, dropout=dropout, cuda))
+                Block(d_model, d_model, rnn_type, ksize, N=N, h=h, dropout=dropout, cuda=cuda))
         self.forward_net = nn.Sequential(*layers) 
 
     def forward(self, x):
