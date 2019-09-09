@@ -63,6 +63,8 @@ def sequence_forecast(test_sequence, number): #da n a 1
     for i in range(number, 0, -1):
 
         x = test_sequence[:-i].float() / 255
+        if args.cuda:
+            x = x.cuda()
         #print(x.shape)
         # per ora prendo come y tutto tranne l'ultima immagine --> poi posso prendere tutte tranne le ultime n-k immagini
         # e prevedere la n-k immagine, poi la n-k+1 e così via fino a n
