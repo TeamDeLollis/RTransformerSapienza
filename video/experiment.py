@@ -63,7 +63,8 @@ emb_dropout = args.dropout
 
 model = RT(input_size, args.d_model, input_size, h=args.h, rnn_type=args.rnn_type,
            ksize=args.ksize, n_level=args.n_level, n=args.n, dropout=dropout, emb_dropout=emb_dropout, cuda=args.cuda)
-#model.to(device)
+if args.cuda:
+    model.to(device)
 
 model_name = "data_{}_d_{}_h_{}_type_{}_k_{}_level_{}_n_{}_lr_{}_drop_{}".format(args.data, args.d_model, args.h,
                                                                                  args.rnn_type, args.ksize,
