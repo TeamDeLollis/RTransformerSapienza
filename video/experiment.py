@@ -14,7 +14,7 @@ sys.path.append("../../")
 warnings.filterwarnings("ignore")  # Suppress the RunTimeWarning on unicode
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--cuda', action='store_false')
+parser.add_argument('--cuda', action='store_true')
 parser.add_argument('--dropout', type=float, default=0.2)
 parser.add_argument('--clip', type=float, default=0.15)
 parser.add_argument('--epochs', type=int, default=100)
@@ -34,7 +34,6 @@ parser.add_argument('--train', type=str, default='train')
 
 
 args = parser.parse_args()
-
 
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
