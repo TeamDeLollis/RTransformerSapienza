@@ -31,8 +31,8 @@ parser.add_argument('--n', type=int, default=1)
 parser.add_argument('--h', type=int, default=4)  # we shouldn't need so many because no need for long term memory
 parser.add_argument('--seed', type=int, default=44)
 parser.add_argument('--data', type=str, default='pouring')
-parser.add_argument('--model', type=str, default='m_data_pouring_d_400_h_4_type_GR.pt')
-parser.add_argument('--test', type=str, default='test')
+parser.add_argument('--model', type=str, default='m_data_pouring_d_400_h_4_type_GRU_k_6_level_3_n_1_lr_0.001_drop_0.2_200EPOCHS.pt')
+parser.add_argument('--test', type=str, default='test28')
 
 args = parser.parse_args()
 
@@ -81,14 +81,14 @@ def sequence_forecast(test_sequence, number): #da n a 1
     return images
 
 def line2grid(line_image):
-    img = np.zeros([28, 28])
+    img = np.zeros([num_pixels, num_pixels])
     i = 0
     j = 0
 
     for element in line_image:
         img[i, j] = element
 
-        if (j == 27):
+        if j == num_pixels - 1:
             j = 0
             i += 1
         else:
