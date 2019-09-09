@@ -71,7 +71,7 @@ def attention(query, key, value, mask=None, dropout=None):
 
 
 class MHPooling(nn.Module):
-    def __init__(self, d_model, h, dropout=0.1):
+    def __init__(self, d_model, h, dropout=0.1, cuda=False):
         "Take in model size and number of heads."
         super(MHPooling, self).__init__()
         assert d_model % h == 0
@@ -85,8 +85,11 @@ class MHPooling(nn.Module):
         #auto-regressive
         attn_shape = (1, 3000, 3000)
         subsequent_mask =  np.triu(np.ones(attn_shape), k=1).astype('uint8')
-        self.mask = (torch.from_numpy(subsequent_mask) == 0).unsqueeze(1).cuda()
-        
+        if cuda:
+            self.mask = (torch.from_numpy(subsequent_mask) == 0).unsqueeze(1).cuda()
+        else:
+            self.mask = (torch.from_numpy(subsequent_mask) == 0).unsqueeze(1)
+
     def forward(self, x):
         "Implements Figure 2"
 
@@ -107,7 +110,7 @@ class MHPooling(nn.Module):
         return self.linears[-1](x)
 
 class LocalRNN(nn.Module):
-    def __init__(self, input_dim, output_dim, rnn_type, ksize, dropout):
+    def __init__(self, input_dim, output_dim, rnn_type, ksize, dropout, cuda=False):
         super(LocalRNN, self).__init__()
         """
         LocalRNN structure
@@ -124,8 +127,12 @@ class LocalRNN(nn.Module):
 
         # To speed up
         idx = [i for j in range(self.ksize-1,10000,1) for i in range(j-(self.ksize-1),j+1,1)]
-        self.select_index = torch.LongTensor(idx).cuda()
-        self.zeros = torch.zeros((self.ksize-1, input_dim)).cuda()
+        if cuda:
+            self.select_index = torch.LongTensor(idx).cuda()
+            self.zeros = torch.zeros((self.ksize-1, input_dim)).cuda()
+        else:
+            self.select_index = torch.LongTensor(idx)
+            self.zeros = torch.zeros((self.ksize-1, input_dim))
 
     def forward(self, x):
         nbatches, l, input_dim = x.shape
@@ -145,10 +152,10 @@ class LocalRNN(nn.Module):
 
 class LocalRNNLayer(nn.Module):
     "Encoder is made up of attconv and feed forward (defined below)"
-    def __init__(self, input_dim, output_dim, rnn_type, ksize, dropout):
+    def __init__(self, input_dim, output_dim, rnn_type, ksize, dropout, cuda=False):
         super(LocalRNNLayer, self).__init__()
-        self.local_rnn = LocalRNN(input_dim, output_dim, rnn_type, ksize, dropout)
-        self.connection = SublayerConnection(output_dim, dropout)
+        self.local_rnn = LocalRNN(input_dim, output_dim, rnn_type, ksize, dropout, cuda)
+        self.connection = SublayerConnection(output_dim, dropout, cuda)
 
     def forward(self, x):
         "Follow Figure 1 (left) for connections."
@@ -161,12 +168,12 @@ class Block(nn.Module):
     """
     One Block
     """
-    def __init__(self, input_dim, output_dim, rnn_type, ksize, N, h, dropout):
+    def __init__(self, input_dim, output_dim, rnn_type, ksize, N, h, dropout, cuda=False):
         super(Block, self).__init__()
         self.layers = clones(
-            LocalRNNLayer(input_dim, output_dim, rnn_type, ksize, dropout), N)
+            LocalRNNLayer(input_dim, output_dim, rnn_type, ksize, dropout, cuda), N)
         self.connections = clones(SublayerConnection(output_dim, dropout), 2)
-        self.pooling = MHPooling(input_dim, h, dropout)
+        self.pooling = MHPooling(input_dim, h, dropout, cuda)
         self.feed_forward = PositionwiseFeedForward(input_dim, dropout)
 
     def forward(self, x):
@@ -183,7 +190,7 @@ class RTransformer(nn.Module):
     """
     The overal model
     """
-    def __init__(self, d_model, rnn_type, ksize, n_level, n, h, dropout):
+    def __init__(self, d_model, rnn_type, ksize, n_level, n, h, dropout, cuda=False):
         super(RTransformer, self).__init__()
         N = n
         self.d_model = d_model
@@ -194,7 +201,7 @@ class RTransformer(nn.Module):
         layers = []
         for i in range(n_level):
             layers.append(
-                Block(d_model, d_model, rnn_type, ksize, N=N, h=h, dropout=dropout))
+                Block(d_model, d_model, rnn_type, ksize, N=N, h=h, dropout=dropout, cuda))
         self.forward_net = nn.Sequential(*layers) 
 
     def forward(self, x):
