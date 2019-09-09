@@ -35,7 +35,7 @@ parser.add_argument('--data', type=str, default='pouring')
 args = parser.parse_args()
 
     #model_filename = "/output/m_data_Nott_d_160_h_4_type_GRU_k_6_level_3_n_1_lr_5e-05_drop_0.1.pt"
-model_filename = "/home/lorenz/Desktop/Neural Networks/project/R-transformer-master/video/output/m_data_pouring_d_400_h_4_type_GRU_k_6_level_3_n_1_lr_0.001_drop_0.2.pt"
+model_filename = "/home/lorenz/Desktop/Neural Networks/project/R-transformer-master/video/output/m_data_pouring_d_400_h_4_type_GRU_k_6_level_3_n_1_lr_0.001_drop_0.2_200EPOCHS.pt"
 with open(model_filename, 'rb') as f:
     model = torch.load(f)
 
@@ -47,38 +47,67 @@ test_dir = os.path.join(data_dir, 'newTest/')
 max_seq_len = 50
 num_pixels = 28
 
-X_test = get_data_list(test_dir, num_pixels, max_seq_len)
 
-# prendo la prima sequenza da testare --> prevo ultimo frame
+def sequence_forecast(test_sequence, number): #da n a 1
+    images = []
 
-test_sequence = X_test[0]
+    for i in range(number, 0, -1):
 
-x, y = test_sequence[:-1].float()/255, test_sequence[1:].float()/255
-# per ora prendo come y tutto tranne l'ultima immagine --> poi posso prendere tutte tranne le ultime n-k immagini
-# e prevedere la n-k immagine, poi la n-k+1 e così via fino a n
+        x = test_sequence[:-i].float() / 255
+        #print(x.shape)
+        # per ora prendo come y tutto tranne l'ultima immagine --> poi posso prendere tutte tranne le ultime n-k immagini
+        # e prevedere la n-k immagine, poi la n-k+1 e così via fino a n
+        output = model(x.unsqueeze(0)).squeeze(0)
+        output_image = (output[-1] )
+        if (i != number):
+            test_sequence[-i] = output_image
 
-output = model(x.unsqueeze(0)).squeeze(0)
+        images.append((output_image*255).detach().numpy())
 
-#ora voglio ricostruire l'immagine output
+    return images
 
-output_image = (output[-1]*255)
-output_image = output_image.detach().numpy()
+def line2grid(line_image):
+    img = np.zeros([28, 28])
+    i = 0
+    j = 0
 
-img = np.zeros([28, 28])
-i = 0
-j = 0
+    for element in line_image:
+        img[i, j] = element
 
-for element in output_image:
-    print(j,i)
+        if (j == 27):
+            j = 0
+            i += 1
+        else:
+            j += 1
 
-    img[i,j] = element
+    return Image.fromarray(np.uint8(img))
 
-    if (j == 27):
-        j = 0
-        i += 1
-    else:
-        j +=1
+if __name__ == "__main__":
 
-image = Image.fromarray(np.uint8(img))
-image.show()
+
+    X_test = get_data_list(test_dir, num_pixels, max_seq_len)
+    X_train = get_data_list(test_dir, num_pixels, max_seq_len)
+
+    # prendo la prima sequenza da testare --> prevo ultimo frame
+
+    #test_sequence = X_test[0] # prova
+    test_sequence = X_train[0]
+
+    output_images = sequence_forecast(test_sequence, 4)
+
+    #print((output_images))
+
+    #ora voglio ricostruire l'immagine output
+
+    for count, img in enumerate(output_images):
+        path = "/home/lorenz/Desktop/Neural Networks/project/R-transformer-master/video/output/output_image" + str(count) + ".jpg"
+        line2grid(img).save(path)
+
+    #output_image = (output[-1]*255)
+    #output_image = output_image.detach().numpy()
+
+
+
+    #image = Image.fromarray(np.uint8(img))
+    #image.show()
 
