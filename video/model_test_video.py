@@ -16,7 +16,7 @@ sys.path.append("../../")
 warnings.filterwarnings("ignore")  # Suppress the RunTimeWarning on unicode
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--cuda', action='store_false')
+parser.add_argument('--cuda', action='store_true')
 parser.add_argument('--dropout', type=float, default=0.2)
 parser.add_argument('--clip', type=float, default=0.15)
 parser.add_argument('--epochs', type=int, default=100)
@@ -31,21 +31,25 @@ parser.add_argument('--n', type=int, default=1)
 parser.add_argument('--h', type=int, default=4)  # we shouldn't need so many because no need for long term memory
 parser.add_argument('--seed', type=int, default=44)
 parser.add_argument('--data', type=str, default='pouring')
+parser.add_argument('--model', type=str, default='m_data_pouring_d_400_h_4_type_GR.pt')
+parser.add_argument('--test', type=str, default='test')
 
 args = parser.parse_args()
 
-    #model_filename = "/output/m_data_Nott_d_160_h_4_type_GRU_k_6_level_3_n_1_lr_5e-05_drop_0.1.pt"
-model_filename = "/home/lorenz/Desktop/Neural Networks/project/R-transformer-master/video/output/m_data_pouring_d_400_h_4_type_GRU_k_6_level_3_n_1_lr_0.001_drop_0.2_200EPOCHS.pt"
+base_path = os.path.dirname(os.path.realpath(__file__))
+data_dir = os.path.join(base_path, 'data/')
+output_dir = os.path.join(base_path, 'output/')
+image_dir = os.path.join(base_path, 'images/')
+
+model_filename = os.path.join(output_dir, args.model)
 with open(model_filename, 'rb') as f:
     model = torch.load(f)
 
 model.eval()
 
-base_path = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(base_path,'data/')
-test_dir = os.path.join(data_dir, 'newTest/')
+test_dir = os.path.join(data_dir, args.test)
 max_seq_len = 50
-num_pixels = 28
+num_pixels = int(args.test.split('test')[1])
 
 
 def sequence_forecast(test_sequence, number): #da n a 1
@@ -100,7 +104,7 @@ if __name__ == "__main__":
     #ora voglio ricostruire l'immagine output
 
     for count, img in enumerate(output_images):
-        path = "/home/lorenz/Desktop/Neural Networks/project/R-transformer-master/video/output/output_image" + str(count) + ".jpg"
+        path = os.path.join(image_dir, 'output_image' + str(count) + '.jpg')
         line2grid(img).save(path)
 
     #output_image = (output[-1]*255)
