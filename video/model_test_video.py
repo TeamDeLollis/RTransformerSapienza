@@ -73,7 +73,10 @@ def sequence_forecast(test_sequence, number): #da n a 1
         if (i != number):
             test_sequence[-i] = output_image
 
-        images.append((output_image*255).detach().numpy())
+        if args.cuda:
+            images.append((output_image*255).detach().cpu().numpy())
+        else:
+            images.append((output_image*255).detach().numpy())
 
     return images
 
