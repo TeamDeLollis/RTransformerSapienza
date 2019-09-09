@@ -104,6 +104,9 @@ def evaluate(X_data, name='Eval'):
             data_line = X_data[idx]
             # print(data_line.shape)
             x, y = data_line[:-1].float()/255, data_line[1:].float()/255  # everything except first word, y = everything to all
+            if args.cuda:
+                x, y = x.cuda(), y.cuda()
+
             output = model(x.unsqueeze(0)).squeeze(0)
 
             loss = -torch.trace(torch.matmul(y, torch.log(output).float().t()) +
