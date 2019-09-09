@@ -44,10 +44,12 @@ image_dir = os.path.join(base_path, 'images/')
 model_filename = os.path.join(output_dir, args.model)
 if args.cuda:
     device = torch.device('cuda')
+
 with open(model_filename, 'rb') as f:
     model = torch.load(f)
-    if args.cuda:
-        model.to(device)
+
+if args.cuda:
+    model.to(device)
 model.eval()
 
 test_dir = os.path.join(data_dir, args.test)
