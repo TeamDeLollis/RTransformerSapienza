@@ -24,5 +24,5 @@ class RT(nn.Module):
         #return self.sig(output.double())
         #print(255*nn.functional.sigmoid(output.double()))
 
-        return nn.functional.sigmoid(output.double())*255
+        return nn.functional.sigmoid(output.double())
 
