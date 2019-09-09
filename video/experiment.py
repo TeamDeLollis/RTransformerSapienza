@@ -23,29 +23,36 @@ parser.add_argument('--n_level', type=int, default=3)
 parser.add_argument('--log-interval', type=int, default=100, metavar='N')
 parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--optim', type=str, default='Adam')
-parser.add_argument('--rnn_type', type=str, default='GRU')  # LSTM; RNN; RNN_TANH; RNN_RELU
+parser.add_argument('--rnn_type', type=str, default='GRU')  # LSTM; RNN; RNN_TANH; RNN_RELU; GRU
 parser.add_argument('--d_model', type=int, default=400)  # da provare piu grande
 parser.add_argument('--n', type=int, default=1)
 parser.add_argument('--h', type=int, default=4)  # we shouldn't need so many because no need for long term memory
 parser.add_argument('--seed', type=int, default=44)
 parser.add_argument('--data', type=str, default='pouring')
+parser.add_argument('--test', type=str, default='test')
+parser.add_argument('--train', type=str, default='train')
+
 
 args = parser.parse_args()
+
+
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
-#device = torch.device('cuda')
+device = torch.device('cuda')
+
+
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 data_dir = os.path.join(base_path, 'data/')
-train_dir = os.path.join(data_dir, 'newTrain/')
-test_dir = os.path.join(data_dir, 'newTest/')
+train_dir = os.path.join(data_dir, args.train)
+test_dir = os.path.join(data_dir, args.test)
 s_dir = os.path.join(base_path, 'output/')
 
 num_seq_train = 11
 num_seq_test = 10
 max_seq_len = 50
-num_pixels = 28
-input_size = 784  # 28 * 28
+num_pixels = int(args.train.split('train')[1])
+input_size = num_pixels ** 2  # 28 * 28
 # X_train = get_data(train_dir, num_pixels, num_seq_train, max_seq_len)
 # X_test = get_data(test_dir, num_pixels, num_seq_test, max_seq_len)
 X_train = get_data_list(train_dir, num_pixels, max_seq_len)
@@ -55,7 +62,7 @@ dropout = args.dropout
 emb_dropout = args.dropout
 
 model = RT(input_size, args.d_model, input_size, h=args.h, rnn_type=args.rnn_type,
-           ksize=args.ksize, n_level=args.n_level, n=args.n, dropout=dropout, emb_dropout=emb_dropout)
+           ksize=args.ksize, n_level=args.n_level, n=args.n, dropout=dropout, emb_dropout=emb_dropout, cuda=args.cuda)
 #model.to(device)
 
 model_name = "data_{}_d_{}_h_{}_type_{}_k_{}_level_{}_n_{}_lr_{}_drop_{}".format(args.data, args.d_model, args.h,
@@ -100,13 +107,19 @@ def evaluate(X_data, name='Eval'):
 
             loss = -torch.trace(torch.matmul(y, torch.log(output).float().t()) +
                                 torch.matmul((1 - y), torch.log(1 - output).float().t()))  # negative likelihood
+            
+            
+            #loss = torch.sum((output.float() - y.float()) ** 2)
+
+            #print(loss)
             #loss = output-input
 
             #loss = criterion(output, y)
-
+            
             total_loss += loss.item()
 
             count += output.size(0)
+        #print(total_loss)
         eval_loss = total_loss / count
         message = name + " loss: {:.5f}".format(eval_loss)
         output_s(message, message_filename)
@@ -122,14 +135,18 @@ def train(ep):
     for idx in train_idx_list:
         data_line = X_train[idx]
         x, y = data_line[:-1].float()/255, data_line[1:].float()/255  # da prendere fino all'ultima prima di zero
-        #if args.cuda:
-        #    x, y = x.cuda(), y.cuda()
+        if args.cuda:
+            x, y = x.cuda(), y.cuda()
 
         optimizer.zero_grad()
         output = model(x.unsqueeze(0)).squeeze(0)
 
         loss = -torch.trace(torch.matmul(y, torch.log(output).float().t()) +
-                            torch.matmul((1 - y), torch.log(1 - output).float().t()))
+                                torch.matmul((1 - y), torch.log(1 - output).float().t()))  # negative likelihood
+            
+        #loss = torch.sum((output.float() - y.float()) ** 2)
+        
+
         #print(torch.log(1 - output).float().t())
         #print(loss)
         #print(loss)
