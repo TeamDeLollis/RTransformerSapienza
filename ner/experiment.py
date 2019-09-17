@@ -13,7 +13,7 @@ from model import RT
 sys.path.append("../../")
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--cuda', action='store_false')
+parser.add_argument('--cuda', action='store_true')
 parser.add_argument('--preprocess', action='store_true')
 parser.add_argument('--batch_size', type=int, default=16)
 parser.add_argument('--dropout', type=float, default=0.35)
@@ -40,7 +40,8 @@ parser.add_argument('--corpus', action='store_true',
 args = parser.parse_args()
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
-device = torch.device("cuda")
+if args.cuda:
+    device = torch.device("cuda")
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 data_dir = os.path.join(base_path, '{}/'.format(args.data))
@@ -66,9 +67,9 @@ tied = args.tied
 
 
 model = RT(n_words, args.d_model, n_categories, h=args.h, rnn_type=args.rnn_type, ksize=args.ksize,
-           n_level=args.n_level,  n=args.n, dropout=dropout, emb_dropout=emb_dropout, tied_weights=tied)
+           n_level=args.n_level,  n=args.n, dropout=dropout, emb_dropout=emb_dropout, tied_weights=tied, cuda=args.cuda)
 
-if torch.cuda.is_available():
+if args.cuda:
     model.to(device)
 
 model_name = "d_{}_h_{}_type_{}_ks_{}_level_{}_n_{}_lr_{}_drop_{}".format(args.d_model, args.h, args.rnn_type,
@@ -109,6 +110,8 @@ def evaluate(data_X, data_Y):
             #   continue
             # data, targets = get_batch(data_source, i, args, evaluation=True)
             data, targets = get_batch(data_X, data_Y, args.batch_size, batch_idx) # args)
+            if args.cuda:
+                data, targets = data.cuda(), targets.cuda()
             output = model(data)
 
             # Discard the effective history, just like in training
@@ -135,6 +138,8 @@ def train():
         # if i + args.seq_len - args.validseqlen >= train_data.size(1) - 1:
         #    continue
         data, targets = get_batch(train_X, train_Y, args.batch_size, batch_idx) # args)
+        if args.cuda:
+            data, targets = data.cuda(), targets.cuda()
         optimizer.zero_grad()
         output = model(data)
 
