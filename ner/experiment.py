@@ -103,7 +103,7 @@ def evaluate(data_X, data_Y):
     total_loss = 0
     # processed_data_size = 0
     with torch.no_grad():
-        for batch_idx, i in enumerate(range(0, train_X.size(1) - 1, args.batch_size)):
+        for batch_idx, i in enumerate(range(0, len(data_X) - 1, args.batch_size)):
             # for i in range(0, data_source.size(1) - 1, args.validseqlen):
             # if i + args.seq_len - args.validseqlen >= data_source.size(1) - 1:
             #   continue
@@ -116,7 +116,7 @@ def evaluate(data_X, data_Y):
             # final_output = output[:, eff_history:].contiguous().view(-1, n_words)
             # final_target = targets[:, eff_history:].contiguous().view(-1)
 
-            loss = criterion(output, targets)
+            loss = criterion(output.transpose(2, 1), targets)
 
             # Note that we don't add TAR loss here
             total_loss += loss.item()  # (data.size(1) - eff_history) * loss.item()
@@ -144,7 +144,7 @@ def train():
         #     raise ValueError("Valid sequence length must be smaller than sequence length!")
         # final_target = targets[:, eff_history:].contiguous().view(-1)
         # final_output = output[:, eff_history:].contiguous().view(-1, n_words)
-        loss = criterion(output, targets)
+        loss = criterion(output.transpose(2, 1), targets)
 
         loss.backward()
         if args.clip > 0:
@@ -157,8 +157,8 @@ def train():
             cur_loss = total_loss / args.log_interval
             elapsed = time.time() - start_time
             message = ('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.5f} | ms/batch {:5.5f} | '
-                       'loss {:5.2f} | ppl {:8.2f}'.format(
-                        epoch, batch_idx, train_data.size(1) // args.validseqlen, lr,
+                       'loss {:5.6f} | ppl {:8.2f}'.format(
+                        epoch, batch_idx,  len(train_X) // args.batch_size, lr,
                         elapsed * 1000 / args.log_interval, cur_loss, math.exp(cur_loss)))
             output_s(message, message_filename)
             total_loss = 0
@@ -175,13 +175,13 @@ if __name__ == "__main__":
             epoch_start_time = time.time()
             train()
             val_loss = evaluate(test_X, test_Y)
-            test_loss = evaluate(test_X, test_Y)
-
+            # test_loss = evaluate(test_X, test_Y)
+            test_loss = val_loss
             message = ('-' * 89
-                       + '\n| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
-                       'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
-                                                  val_loss, math.exp(val_loss))
-                       + '\n| end of epoch {:3d} | time: {:5.2f}s | test loss {:5.2f} | '
+                       + '\n| end of epoch {:3d} | time: {:5.6f}s | valid loss {:5.2f} | '
+                        'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
+                                                   val_loss, math.exp(val_loss))
+                       + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} | '
                        'test ppl {:8.2f}\n'.format(epoch, (time.time() - epoch_start_time),
                                                    test_loss, math.exp(test_loss))
                        + '-' * 89)
