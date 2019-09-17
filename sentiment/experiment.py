@@ -59,7 +59,6 @@ n_words = len(corpus.dictionary)
 batch_size = args.batch_size
 n_classes = 10
 input_channels = 1
-seq_length = int(784 / input_channels)
 epochs = args.epochs
 steps = 0
 dropout = args.dropout
@@ -99,23 +98,23 @@ def train(ep):
     train_loss = 0
     model.train()
     batch_idx = 0
+    steps = 0
     for data, target in zip(train_data, train_y): #non batchato
         #if args.cuda: data, target = data.cuda(), target.cuda()
         optimizer.zero_grad()
         output = model(data.unsqueeze(0))
-        print(torch.tensor([target]))
-        print(output)
+        #print(torch.tensor([target]))
+        #print(output)
         loss = F.nll_loss(output, torch.tensor([target - 1]))
         loss.backward()
         if args.clip > 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
         optimizer.step()
         train_loss += loss
-        steps += seq_length
-        if batch_idx > 0 and batch_idx % args.log_interval == 0:
-            message = ('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tSteps: {}'.format(
-                ep, batch_idx * batch_size, len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), train_loss.item()/args.log_interval, steps))
+        steps += 1
+        if steps > 0 and steps % args.log_interval == 0:
+            message = ('Train Epoch: {} Loss: {:.6f}\tSteps: {}'.format(
+                ep, steps, train_loss.item()/args.log_interval, steps))
             output_s(message, message_filename)
             train_loss = 0
         batch_idx += 1
@@ -125,22 +124,19 @@ def test():
     test_loss = 0
     correct = 0
     with torch.no_grad():
-        for data, target in test_loader:
+        for data, target in zip(train_data, train_y):  # non batchato
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
-            data = data.view(-1, input_channels, seq_length)
-            if args.permute:
-                data = data[:, :, permute]
-            data, target = data,  target
-            output = model(data)
-            test_loss += F.nll_loss(output, target, size_average=False).item()
+            output = model(data.unsqueeze(0))
+            test_loss = F.nll_loss(output, torch.tensor([target - 1]))
             pred = output.data.max(1, keepdim=True)[1]
+            print(pred)
             correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
-        test_loss /= len(test_loader.dataset)
+        test_loss /= len(test_data)
         message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss, correct, len(test_loader.dataset),
-            100. * correct / len(test_loader.dataset)))
+            test_loss, correct, len(test_data),
+            100. * correct / len(test_data)))
         output_s(message, message_filename)
         return test_loss
 
@@ -150,7 +146,7 @@ if __name__ == "__main__":
     for epoch in range(1, epochs+1):
         train(epoch)
         save(model, model_filename)
-        #test()
+        test()
         if epoch % 10 == 0:
             lr /= 10
             for param_group in optimizer.param_groups:
