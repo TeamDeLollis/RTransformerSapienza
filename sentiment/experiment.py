@@ -37,7 +37,7 @@ torch.manual_seed(args.seed)
 device = torch.device("cuda")
 
 base_path = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(base_path,'data/aclImdb/')
+data_dir = os.path.join(base_path,'data/')
 print(data_dir)
 s_dir = os.path.join(base_path,'output/')
 
