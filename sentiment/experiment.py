@@ -17,7 +17,7 @@ parser.add_argument('--clip', type=float, default=0.35)
 parser.add_argument('--epochs', type=int, default=30)
 parser.add_argument('--ksize', type=int, default=9)
 parser.add_argument('--n_level', type=int, default=3)
-parser.add_argument('--log-interval', type=int, default=100, metavar='N')
+parser.add_argument('--log-interval', type=int, default=300, metavar='N')
 parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--optim', type=str, default='Adam')
 parser.add_argument('--rnn_type', type=str, default='LSTM') # o gru?
@@ -34,10 +34,10 @@ parser.add_argument('--tied', action='store_false')
 args = parser.parse_args()
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
-#device = torch.device("cuda")
+device = torch.device("cuda")
 
 base_path = os.path.dirname(os.path.realpath(__file__))
-data_dir = os.path.join(base_path,'data/')
+data_dir = os.path.join(base_path,'data/aclImdb/')
 print(data_dir)
 s_dir = os.path.join(base_path,'output/')
 
@@ -68,7 +68,7 @@ tied = args.tied
 model = RT(128, n_words, n_classes, h=args.h, rnn_type=args.rnn_type, ksize=args.ksize,
     n_level=args.n_level, n=args.n, dropout=args.dropout, emb_dropout=args.dropout)
 
-#model.to(device)
+model.to(device)
 
 model_name = "d_{}_h_{}_t_{}_ksize_{}_level_{}_n_{}_lr_{}_dropout_{}".format(
             args.d_model, args.h, args.rnn_type, args.ksize, 
@@ -100,7 +100,7 @@ def train(ep):
     batch_idx = 0
     steps = 0
     for data, target in zip(train_data, train_y): #non batchato
-        #if args.cuda: data, target = data.cuda(), target.cuda()
+        if args.cuda: data, target = data.cuda(), target.cuda()
         optimizer.zero_grad()
         output = model(data.unsqueeze(0))
         #print(torch.tensor([target]))
@@ -113,8 +113,9 @@ def train(ep):
         train_loss += loss
         steps += 1
         if steps > 0 and steps % args.log_interval == 0:
-            message = ('Train Epoch: {} Loss: {:.6f}\tSteps: {}'.format(
-                ep, steps, train_loss.item()/args.log_interval, steps))
+            pred = output.data.max(1, keepdim=True)[1]
+            message = ('Train Epoch: {} Loss: {:.6f}\tSteps: {} \tpred: {}  target: {}'.format(
+                ep, train_loss.item()/args.log_interval, steps, pred.item(), target))
             output_s(message, message_filename)
             train_loss = 0
         batch_idx += 1
@@ -124,14 +125,15 @@ def test():
     test_loss = 0
     correct = 0
     with torch.no_grad():
-        for data, target in zip(train_data, train_y):  # non batchato
+        for data, target in zip(test_data, train_y):  # non batchato
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
             output = model(data.unsqueeze(0))
             test_loss = F.nll_loss(output, torch.tensor([target - 1]))
             pred = output.data.max(1, keepdim=True)[1]
-            print(pred)
-            correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+            if pred.item() == pred:
+                correct += 1
+            break
 
         test_loss /= len(test_data)
         message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(

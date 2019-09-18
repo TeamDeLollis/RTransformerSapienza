@@ -34,8 +34,15 @@ class Corpus(object):
     def __init__(self, path):
         self.dictionary = Dictionary()
 
-        self.trainX, self.trainY = self.tokenize(os.path.join(path, 'train/'))
-        self.testX, self.testY = self.tokenize(os.path.join(path, 'test/'))
+        self.trainX1, self.trainY1 = self.tokenize(os.path.join(path, 'train/pos'))
+        self.trainX2, self.trainY2 = self.tokenize(os.path.join(path, 'train/neg'))
+        self.testX1, self.testY1 = self.tokenize(os.path.join(path, 'test/pos'))
+        self.testX2, self.testY2 = self.tokenize(os.path.join(path, 'test/neg'))
+
+        self.trainX = self.trainX1 + self.trainX2
+        self.trainY = self.trainY1 + self.trainY2
+        self.testX = self.testX1 + self.testX2
+        self.testY = self.testY1 + self.testY2
 
     def tokenize(self, path):
         # fare un vettore con tutte le lunghezze delle frasi per
