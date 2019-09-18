@@ -17,7 +17,7 @@ parser.add_argument('--clip', type=float, default=0.35)
 parser.add_argument('--epochs', type=int, default=30)
 parser.add_argument('--ksize', type=int, default=9)
 parser.add_argument('--n_level', type=int, default=3)
-parser.add_argument('--log-interval', type=int, default=300, metavar='N')
+parser.add_argument('--log-interval', type=int, default=2500, metavar='N')
 parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--optim', type=str, default='Adam')
 parser.add_argument('--rnn_type', type=str, default='LSTM') # o gru?
@@ -115,7 +115,7 @@ def train(ep):
         if steps > 0 and steps % args.log_interval == 0:
             pred = output.data.max(1, keepdim=True)[1]
             message = ('Train Epoch: {} Loss: {:.6f}\tSteps: {} \tpred: {}  target: {}'.format(
-                ep, train_loss.item()/args.log_interval, steps, pred.item(), target))
+                ep, train_loss.item()/args.log_interval, steps, pred.item() + 1, target))
             output_s(message, message_filename)
             train_loss = 0
         batch_idx += 1
@@ -125,7 +125,10 @@ def test():
     test_loss = 0
     correct = 0
     with torch.no_grad():
-        for data, target in zip(test_data, train_y):  # non batchato
+        sequence = np.random.randint(0, high=12500, size=500) #test on 500 elements from the test set
+        for index in sequence:
+            data = test_data[index]
+            target = test_y[index]
             if args.cuda:
                 data = data.cuda()
             output = model(data.unsqueeze(0))
