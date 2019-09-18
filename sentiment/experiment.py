@@ -105,7 +105,7 @@ def train(ep):
         output = model(data.unsqueeze(0))
         #print(torch.tensor([target]))
         #print(output)
-        loss = F.nll_loss(output, torch.tensor([target - 1]))
+        loss = F.nll_loss(output, torch.tensor([target - 1]).cuda())
         loss.backward()
         if args.clip > 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
@@ -129,7 +129,7 @@ def test():
             if args.cuda:
                 data = data.cuda()
             output = model(data.unsqueeze(0))
-            test_loss = F.nll_loss(output, torch.tensor([target - 1]))
+            test_loss = F.nll_loss(output, torch.tensor([target - 1]).cuda())
             pred = output.data.max(1, keepdim=True)[1]
             if pred.item() == pred:
                 correct += 1
