@@ -33,11 +33,11 @@ class Dictionary(object):
 class Corpus(object):
     def __init__(self, path):
         self.dictionary = Dictionary()
-
-        self.trainX1, self.trainY1 = self.tokenize(os.path.join(path, 'train/pos'))
-        self.trainX2, self.trainY2 = self.tokenize(os.path.join(path, 'train/neg'))
-        self.testX1, self.testY1 = self.tokenize(os.path.join(path, 'test/pos'))
-        self.testX2, self.testY2 = self.tokenize(os.path.join(path, 'test/neg'))
+        pathC = '/content/drive/My Drive/NN/R-Transformer/sentiment_model/aclImdb/'
+        self.trainX1, self.trainY1 = self.tokenize(os.path.join(pathC, 'train/pos'))
+        self.trainX2, self.trainY2 = self.tokenize(os.path.join(pathC, 'train/neg'))
+        self.testX1, self.testY1 = self.tokenize(os.path.join(pathC, 'test/pos'))
+        self.testX2, self.testY2 = self.tokenize(os.path.join(pathC, 'test/neg'))
 
         self.trainX = self.trainX1 + self.trainX2
         self.trainY = self.trainY1 + self.trainY2
