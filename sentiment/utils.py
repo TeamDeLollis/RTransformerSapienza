@@ -7,9 +7,10 @@ import glob
 def data_generator(data_dir, args):
     corpus_path = os.path.join(data_dir, 'corpus', 'corpus')
     if os.path.exists(corpus_path) and not args.corpus:
-        # print(os.path.exists(corpus_path))
+        print("pickle")
         corpus = pickle.load(open(corpus_path, 'rb'))
     else:
+        print("no pickle")
         corpus = Corpus(data_dir)
         pickle.dump(corpus, open(corpus_path, 'wb'))
     return corpus
