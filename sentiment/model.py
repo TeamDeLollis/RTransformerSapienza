@@ -11,7 +11,7 @@ class RT(nn.Module):
     def __init__(self, d_model, input_size, num_classes, h, rnn_type, ksize, n_level, n, dropout=0.2, emb_dropout=0.2, tied_weights=False):
         super(RT, self).__init__()
         self.encoder = nn.Embedding(input_size, d_model) #input_size embedding with dimension d_model
-        self.rt = RTransformer(d_model, rnn_type, ksize, n_level, n, h, dropout)
+        self.rt = RTransformer(d_model, rnn_type, ksize, n_level, n, h, dropout, cuda=True)
         self.decoder = nn.Linear(d_model, num_classes)
 
         if tied_weights:
