@@ -53,6 +53,7 @@ class Corpus(object):
         data = []
         targets = []
         for filename in glob.glob(os.path.join(path,'*.txt')):
+            print(filename.splot('_'))
             file_number, target_with_path = filename.split('_')
             target = target_with_path.split('.')[0]
             target = int(target)
