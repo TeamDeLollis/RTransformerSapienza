@@ -145,7 +145,7 @@ def test():
             test_loss += loss
 
         message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss.item()/test_dim, correct, test_dim,
+            test_loss/test_dim, correct, test_dim,
             100. * correct / test_dim))
         output_s(message, message_filename)
         return test_loss
