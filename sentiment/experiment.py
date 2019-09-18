@@ -100,7 +100,7 @@ def train(ep):
     batch_idx = 0
     steps = 0
     for data, target in zip(train_data, train_y): #non batchato
-        if args.cuda: data, target = data.cuda(), target.cuda()
+        if args.cuda: data = data.cuda()
         optimizer.zero_grad()
         output = model(data.unsqueeze(0))
         #print(torch.tensor([target]))
@@ -127,7 +127,7 @@ def test():
     with torch.no_grad():
         for data, target in zip(test_data, train_y):  # non batchato
             if args.cuda:
-                data, target = data.cuda(), target.cuda()
+                data = data.cuda()
             output = model(data.unsqueeze(0))
             test_loss = F.nll_loss(output, torch.tensor([target - 1]))
             pred = output.data.max(1, keepdim=True)[1]
