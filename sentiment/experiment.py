@@ -99,7 +99,11 @@ def train(ep):
     model.train()
     batch_idx = 0
     steps = 0
-    for data, target in zip(train_data, train_y): #non batchato
+    sequence = np.arange(len(train_data)) #in modo che siano presi in modo casuale
+    np.random.shuffle(sequence)
+    for index in sequence:
+        data = train_data[index]
+        target = train_y[index]
         if args.cuda: data = data.cuda()
         optimizer.zero_grad()
         output = model(data.unsqueeze(0))
