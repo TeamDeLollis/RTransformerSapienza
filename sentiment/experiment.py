@@ -128,24 +128,25 @@ def test():
     model.eval()
     test_loss = 0
     correct = 0
+    test_dim = 500
     with torch.no_grad():
-        sequence = np.random.randint(0, high=12500, size=500) #test on 500 elements from the test set
+        sequence = np.random.randint(0, high=len(test_data), size=test_dim) #test on 500 elements from the test set
         for index in sequence:
             data = test_data[index]
             target = test_y[index]
             if args.cuda:
                 data = data.cuda()
             output = model(data.unsqueeze(0))
-            test_loss = F.nll_loss(output, torch.tensor([target - 1]).cuda())
+            loss = F.nll_loss(output, torch.tensor([target - 1]).cuda())
             pred = output.data.max(1, keepdim=True)[1]
-            if pred.item() == pred:
+            if (pred.item() + 1) == target:
                 correct += 1
             break
+            test_loss += loss
 
-        test_loss /= len(test_data)
         message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss, correct, len(test_data),
-            100. * correct / len(test_data)))
+            test_loss.item()/test_dim, correct, test_dim,
+            100. * correct / test_dim))
         output_s(message, message_filename)
         return test_loss
 
