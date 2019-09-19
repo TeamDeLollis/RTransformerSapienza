@@ -178,7 +178,7 @@ def train():
             cur_loss = total_loss / args.log_interval
             elapsed = time.time() - start_time
             message = ('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.5f} | ms/batch {:5.5f} | '
-                       'loss {:5.6f} | accuracy {:5.6f} '.format(epoch, batch_idx,  len(train_X) // args.batch_size, lr,
+                       'loss {:5.6f} '.format(epoch, batch_idx,  len(train_X) // args.batch_size, lr,
                                                            elapsed * 1000 / args.log_interval, cur_loss))
             output_s(message, message_filename)
             total_loss = 0
