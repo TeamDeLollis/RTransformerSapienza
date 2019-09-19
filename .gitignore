@@ -3,3 +3,4 @@
 /language_word/data/
 .idea/
 *.pyc
+ner/data/corpus
