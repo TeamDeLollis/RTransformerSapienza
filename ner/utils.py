@@ -99,8 +99,8 @@ def get_batch(train, test, batch_size, i):  # args, seq_len=None, evaluation=Fal
     torchX = torch.zeros(batch_size, max_len, dtype=torch.long)
     torchY = torch.zeros(batch_size, max_len, dtype=torch.long) + 8  # VERY IMPORTANT to add 8
     for j in range(len(X)):
-        torchX[j, :len(X[j])] = torch.tensor(X[j])
-        torchY[j, :len(Y[j])] = torch.tensor(Y[j])
+        torchX[j, :len(X[j])] = X[j].clone().detach()
+        torchY[j, :len(Y[j])] = Y[j].clone().detach()
         # for k in range(len(Y[j]):
         #    torchY[j, k] = one_hot(Y[j][k])
     return torchX, torchY
