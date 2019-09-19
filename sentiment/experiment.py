@@ -144,14 +144,13 @@ def test():
             print("output", output)
             print("target", target)
             loss = F.nll_loss(output, torch.tensor([target - 1]).cuda())
-            print("loss" , loss)
+            print("loss" , loss.item())
             pred = output.data.max(1, keepdim=True)[1]
             print("pred", pred.item() + 1)
             print("target", target)
             if (pred.item() + 1) == target:
                 correct += 1
-            break
-            test_loss += loss
+            test_loss += loss.item()
 
         message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             test_loss/test_dim, correct, test_dim,
