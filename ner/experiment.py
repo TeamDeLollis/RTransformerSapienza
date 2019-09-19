@@ -193,7 +193,7 @@ if __name__ == "__main__":
         all_vloss = []
         for epoch in range(1, args.epochs+1):
             epoch_start_time = time.time()
-           # train()
+            train()
             val_loss, val_accuracy = evaluate(test_X, test_Y)
             # test_loss = evaluate(test_X, test_Y)
             test_loss = val_loss
