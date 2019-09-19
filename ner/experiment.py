@@ -1,12 +1,13 @@
 import argparse
+import os
 import time
 import math
 import sys
 import numpy as np
 import torch.nn as nn
 import torch.optim as optim
-from ner.utils import *
-from ner.model import RT
+from utils import *
+from model import RT
 
 sys.path.append("../../")
 
