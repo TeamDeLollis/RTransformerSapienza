@@ -85,6 +85,8 @@ class Corpus(object):
                     X.append([])
                     Y.append([])
                     line_num += 1
+        X.pop()
+        Y.pop()
         return X, Y
 
 
