@@ -132,6 +132,7 @@ def test():
     test_dim = 500
     with torch.no_grad():
         sequence = np.random.randint(0, high=len(test_data), size=test_dim) #test on 500 elements from the test set
+        print("sequence" , sequence)
         for index in sequence:
             print("len test data", len(test_data))
             print("len test y", len(test_y))
@@ -143,7 +144,10 @@ def test():
             print("output", output)
             print("target", target)
             loss = F.nll_loss(output, torch.tensor([target - 1]).cuda())
+            print("loss" , loss)
             pred = output.data.max(1, keepdim=True)[1]
+            print("pred", pred.item() + 1)
+            print("target", target)
             if (pred.item() + 1) == target:
                 correct += 1
             break
