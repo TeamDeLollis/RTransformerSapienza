@@ -99,7 +99,8 @@ def train(ep):
     model.train()
     batch_idx = 0
     steps = 0
-    sequence = np.arange(len(train_data)) #in modo che siano presi in modo casuale
+    #sequence = np.arange(len(train_data)) #in modo che siano presi in modo casuale
+    sequence = np.arange(200)
     np.random.shuffle(sequence)
     for index in sequence:
         data = train_data[index]
