@@ -99,8 +99,7 @@ def train(ep):
     model.train()
     batch_idx = 0
     steps = 0
-    #sequence = np.arange(len(train_data)) #in modo che siano presi in modo casuale
-    sequence = np.arange(200)
+    sequence = np.arange(len(train_data)) #in modo che siano presi in modo casuale
     np.random.shuffle(sequence)
     for index in sequence:
         data = train_data[index]
@@ -132,22 +131,14 @@ def test():
     test_dim = 500
     with torch.no_grad():
         sequence = np.random.randint(0, high=len(test_data), size=test_dim) #test on 500 elements from the test set
-        print("sequence" , sequence)
         for index in sequence:
-            print("len test data", len(test_data))
-            print("len test y", len(test_y))
             data = test_data[index]
             target = test_y[index]
             if args.cuda:
                 data = data.cuda()
             output = model(data.unsqueeze(0))
-            print("output", output)
-            print("target", target)
             loss = F.nll_loss(output, torch.tensor([target - 1]).cuda())
-            print("loss" , loss.item())
             pred = output.data.max(1, keepdim=True)[1]
-            print("pred", pred.item() + 1)
-            print("target", target)
             if (pred.item() + 1) == target:
                 correct += 1
             test_loss += loss.item()
