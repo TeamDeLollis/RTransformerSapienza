@@ -2,3 +2,4 @@
 /image/data/
 /language_word/data/
 .idea/
+*.pyc

@@ -94,7 +94,7 @@ def get_batch(train, test, batch_size, i):  # args, seq_len=None, evaluation=Fal
     Y = test[i * batch_size: i * batch_size + num_seq]
     # print(len(Y))
 
-    max_len = max(*[len(s) for s in X])
+    max_len = max(*[s.size() for s in X])
     # num_cat = max(*[c for y in Y for c in y]) + 1
     torchX = torch.zeros(batch_size, max_len, dtype=torch.long)
     torchY = torch.zeros(batch_size, max_len, dtype=torch.long) + 8  # VERY IMPORTANT to add 8
@@ -105,11 +105,6 @@ def get_batch(train, test, batch_size, i):  # args, seq_len=None, evaluation=Fal
         #    torchY[j, k] = one_hot(Y[j][k])
     return torchX, torchY
 
-
-def one_hot(i, max):
-    vector = torch.zeros(max)
-    vector[i] = 1
-    return vector
 
 # def batchify(data, batch_size, args):
 #    """The output should have size [L x batch_size], where L could be a long sequence length"""

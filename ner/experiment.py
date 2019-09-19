@@ -1,14 +1,12 @@
-import numpy as np
 import argparse
 import time
 import math
 import sys
-import os
-import torch
+import numpy as np
 import torch.nn as nn
 import torch.optim as optim
-from utils import *
-from model import RT
+from ner.utils import *
+from ner.model import RT
 
 sys.path.append("../../")
 
@@ -40,8 +38,7 @@ parser.add_argument('--corpus', action='store_true',
 args = parser.parse_args()
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
-if args.cuda:
-    device = torch.device("cuda")
+device = torch.device("cuda")
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 data_dir = os.path.join(base_path, '{}/'.format(args.data))
@@ -76,10 +73,11 @@ tied = args.tied
 
 
 model = RT(n_words, args.d_model, n_categories, h=args.h, rnn_type=args.rnn_type, ksize=args.ksize,
-           n_level=args.n_level,  n=args.n, dropout=dropout, emb_dropout=emb_dropout, tied_weights=tied, cuda=args.cuda)
+           n_level=args.n_level,  n=args.n, dropout=dropout, emb_dropout=emb_dropout, cuda=args.cuda)
 
 
 if args.cuda:
+    # noinspection PyUnresolvedReferences
     model.to(device)
 
 model_name = "d_{}_h_{}_type_{}_ks_{}_level_{}_n_{}_lr_{}_drop_{}".format(args.d_model, args.h, args.rnn_type,
@@ -94,6 +92,7 @@ with open(message_filename, 'w') as out:
 criterion = nn.NLLLoss()  # CrossEntropyLoss()
 
 lr = args.lr
+# noinspection PyUnresolvedReferences
 optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr)
 
 
@@ -119,7 +118,7 @@ def evaluate(data_X, data_Y):
             # if i + args.seq_len - args.validseqlen >= data_source.size(1) - 1:
             #   continue
             # data, targets = get_batch(data_source, i, args, evaluation=True)
-            data, targets = get_batch(data_X, data_Y, args.batch_size, batch_idx) # args)
+            data, targets = get_batch(data_X, data_Y, args.batch_size, batch_idx)  # args)
             # if args.cuda:
             #    data, targets = data.cuda(), targets.cuda()
             output = model(data)
@@ -147,7 +146,7 @@ def train():
     for batch_idx, i in enumerate(range(0, len(train_X) - 1, args.batch_size)):  # args.validseqlen)):
         # if i + args.seq_len - args.validseqlen >= train_data.size(1) - 1:
         #    continue
-        data, targets = get_batch(train_X, train_Y, args.batch_size, batch_idx) # args)
+        data, targets = get_batch(train_X, train_Y, args.batch_size, batch_idx)  # args)
         # if args.cuda:
         #    data, targets = data.cuda(), targets.cuda()
         optimizer.zero_grad()
@@ -172,9 +171,9 @@ def train():
             cur_loss = total_loss / args.log_interval
             elapsed = time.time() - start_time
             message = ('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.5f} | ms/batch {:5.5f} | '
-                       'loss {:5.6f} | ppl {:8.2f}'.format(
-                        epoch, batch_idx,  len(train_X) // args.batch_size, lr,
-                        elapsed * 1000 / args.log_interval, cur_loss, math.exp(cur_loss)))
+                       'loss {:5.6f} | ppl {:8.2f}'.format(epoch, batch_idx,  len(train_X) // args.batch_size, lr,
+                                                           elapsed * 1000 / args.log_interval, cur_loss,
+                                                           math.exp(cur_loss)))
             output_s(message, message_filename)
             total_loss = 0
             start_time = time.time()
@@ -194,8 +193,8 @@ if __name__ == "__main__":
             test_loss = val_loss
             message = ('-' * 89
                        + '\n| end of epoch {:3d} | time: {:5.6f}s | valid loss {:5.2f} | '
-                        'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
-                                                   val_loss, math.exp(val_loss))
+                       'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
+                                                  val_loss, math.exp(val_loss))
                        + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} | '
                        'test ppl {:8.2f}\n'.format(epoch, (time.time() - epoch_start_time),
                                                    test_loss, math.exp(test_loss))
