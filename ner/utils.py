@@ -91,7 +91,7 @@ class Corpus(object):
 
 
 def get_batch(train, test, batch_size, i):  # args, seq_len=None, evaluation=False):
-    return train[i].unsqueeze([0]), test[i].unsqueeze([0])
+    return train[i].unsqueeze(0), test[i].unsqueeze(0)
     # num_seq = min(batch_size, len(train) - 1 - i * batch_size)
     # X = train[i * batch_size: i * batch_size + num_seq]
     # Y = test[i * batch_size: i * batch_size + num_seq]
