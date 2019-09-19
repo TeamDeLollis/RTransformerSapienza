@@ -67,6 +67,7 @@ if args.cuda:
 
 n_words = len(corpus.dictionary)
 n_categories = len(corpus.categories)
+n_words_test = sum(s.size()[0] for s in test_X)
 
 dropout = args.dropout
 emb_dropout = args.emb_dropout
@@ -110,6 +111,7 @@ def output_s(message, save_filename):
 
 
 def evaluate(data_X, data_Y):
+    global n_words_test
     model.eval()
     total_loss = 0
     false_pred = 0
@@ -125,21 +127,20 @@ def evaluate(data_X, data_Y):
             # if args.cuda:
             #    data, targets = data.cuda(), targets.cuda()
             output = model(data)
-
             # Discard the effective history, just like in training
             # eff_history = args.seq_len - args.validseqlen
             # final_output = output[:, eff_history:].contiguous().view(-1, n_words)
             # final_target = targets[:, eff_history:].contiguous().view(-1)
-            pred = targets - output
+
+            pred = targets - output.argmax(-1)
             false_pred += pred.nonzero().size()[0]
-            total_pred += pred.size()[0] * pred.size()[1]
 
             loss = criterion(output.transpose(2, 1), targets)
 
             # Note that we don't add TAR loss here
             total_loss += loss.item()  # (data.size(1) - eff_history) * loss.item()
             # processed_data_size += data.size(1) - eff_history
-        return total_loss / (len(data_X) / args.batch_size), 1 - false_pred / total_pred # / processed_data_size
+        return total_loss / (len(data_X) / args.batch_size), 1 - (false_pred / n_words_test) # / processed_data_size
 
 
 def train():
@@ -177,7 +178,7 @@ def train():
             cur_loss = total_loss / args.log_interval
             elapsed = time.time() - start_time
             message = ('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.5f} | ms/batch {:5.5f} | '
-                       'loss {:5.6f}'.format(epoch, batch_idx,  len(train_X) // args.batch_size, lr,
+                       'loss {:5.6f} | accuracy {:5.6f} '.format(epoch, batch_idx,  len(train_X) // args.batch_size, lr,
                                                            elapsed * 1000 / args.log_interval, cur_loss))
             output_s(message, message_filename)
             total_loss = 0
@@ -192,7 +193,7 @@ if __name__ == "__main__":
         all_vloss = []
         for epoch in range(1, args.epochs+1):
             epoch_start_time = time.time()
-            train()
+           # train()
             val_loss, val_accuracy = evaluate(test_X, test_Y)
             # test_loss = evaluate(test_X, test_Y)
             test_loss = val_loss
