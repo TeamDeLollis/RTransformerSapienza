@@ -199,10 +199,10 @@ if __name__ == "__main__":
             test_loss = val_loss
             test_accuracy = val_accuracy
             message = ('-' * 89
-                       + '\n| end of epoch {:3d} | time: {:5.6f}s | valid loss {:5.2f} | valid accuracy {:5.2f} '
+                       + '\n| end of epoch {:3d} | time: {:5.6f}s | valid loss {:5.2f} | valid accuracy {:5.6f} '
                        .format(epoch, (time.time() - epoch_start_time),
                                                   val_loss, val_accuracy)
-                       + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} | test accuracy {:5.2f} '
+                       + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} | test accuracy {:5.6f} '
                        .format(epoch, (time.time() - epoch_start_time),
                                                    test_loss, test_accuracy)
                        + '-' * 89)
