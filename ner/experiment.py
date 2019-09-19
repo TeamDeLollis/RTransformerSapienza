@@ -58,6 +58,15 @@ train_Y = corpus.train_Y
 test_X = corpus.test_X
 test_Y = corpus.test_Y
 
+if args.cuda:
+    for i in range(len(train_X)):
+        train_X[i] = train_X[i].to(device)
+        train_Y[i] = train_Y[i].to(device)
+    for i in range(len(test_X)):
+        test_X[i] = test_X[i].to(device)
+        test_Y[i] = test_Y[i].to(device)
+
+
 n_words = len(corpus.dictionary)
 n_categories = len(corpus.categories)
 
@@ -68,6 +77,7 @@ tied = args.tied
 
 model = RT(n_words, args.d_model, n_categories, h=args.h, rnn_type=args.rnn_type, ksize=args.ksize,
            n_level=args.n_level,  n=args.n, dropout=dropout, emb_dropout=emb_dropout, tied_weights=tied, cuda=args.cuda)
+
 
 if args.cuda:
     model.to(device)
@@ -110,8 +120,8 @@ def evaluate(data_X, data_Y):
             #   continue
             # data, targets = get_batch(data_source, i, args, evaluation=True)
             data, targets = get_batch(data_X, data_Y, args.batch_size, batch_idx) # args)
-            if args.cuda:
-                data, targets = data.cuda(), targets.cuda()
+            # if args.cuda:
+            #    data, targets = data.cuda(), targets.cuda()
             output = model(data)
 
             # Discard the effective history, just like in training
@@ -138,8 +148,8 @@ def train():
         # if i + args.seq_len - args.validseqlen >= train_data.size(1) - 1:
         #    continue
         data, targets = get_batch(train_X, train_Y, args.batch_size, batch_idx) # args)
-        if args.cuda:
-            data, targets = data.cuda(), targets.cuda()
+        # if args.cuda:
+        #    data, targets = data.cuda(), targets.cuda()
         optimizer.zero_grad()
         output = model(data)
 

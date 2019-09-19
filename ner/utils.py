@@ -80,6 +80,8 @@ class Corpus(object):
                         skip = True
                 elif not skip:
                     print('*'*10)
+                    X[line_num] = torch.tensor(X[line_num])
+                    Y[line_num] = torch.tensor(Y[line_num])
                     X.append([])
                     Y.append([])
                     line_num += 1
@@ -102,11 +104,6 @@ def get_batch(train, test, batch_size, i):  # args, seq_len=None, evaluation=Fal
         # for k in range(len(Y[j]):
         #    torchY[j, k] = one_hot(Y[j][k])
     return torchX, torchY
-
-    # seq_len = min(seq_len if seq_len else args.seq_len, source.size(1) - 1 - i)
-    # data = source[:, i:i+seq_len]
-    # target = source[:, i+1:i+1+seq_len]     # CAUTION: This is un-flattened!
-    # return data, target
 
 
 def one_hot(i, max):

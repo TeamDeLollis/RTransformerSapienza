@@ -16,7 +16,7 @@ class RT(nn.Module):
         super(RT, self).__init__()
 
         self.encoder = nn.Embedding(dict_size, input_size)
-        self.rt = RTransformer(input_size, rnn_type, ksize, n_level, n, h, dropout, cuda=True)
+        self.rt = RTransformer(input_size, rnn_type, ksize, n_level, n, h, dropout, cuda)
         self.decoder = nn.Linear(input_size, output_size)
         #if tied_weights:
         #    self.decoder.weight = self.encoder.weight
