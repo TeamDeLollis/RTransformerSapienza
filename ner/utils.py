@@ -55,7 +55,7 @@ class Corpus(object):
                     split = line.split(' ')
                     if split[0] != '-DOCSTART-':
                         word = split[0]
-                        print(word)
+                        # print(word)
                         self.dictionary.add_word(word)
 
         # Tokenize file content
@@ -65,21 +65,21 @@ class Corpus(object):
         Y.append([])
         with open(path, 'r') as f:
             for line in f:
-                print(line)
+                # print(line)
                 if line != '\n':
                     split = line.split(' ')
                     if split[0] != '-DOCSTART-':
                         skip = False
                         word = split[0]
-                        print(word)
+                        # print(word)
                         target = split[-1].rstrip()
-                        print(target)
+                        # print(target)
                         X[line_num].append(self.dictionary.word2idx[word])
                         Y[line_num].append(self.categories[target])
                     else:
                         skip = True
                 elif not skip:
-                    print('*'*10)
+                    # print('*'*1 )
                     X[line_num] = torch.tensor(X[line_num])
                     Y[line_num] = torch.tensor(Y[line_num])
                     X.append([])
