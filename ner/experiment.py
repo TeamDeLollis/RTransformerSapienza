@@ -172,9 +172,8 @@ def train():
             cur_loss = total_loss / args.log_interval
             elapsed = time.time() - start_time
             message = ('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.5f} | ms/batch {:5.5f} | '
-                       'loss {:5.6f} | ppl {:8.2f}'.format(epoch, batch_idx,  len(train_X) // args.batch_size, lr,
-                                                           elapsed * 1000 / args.log_interval, cur_loss,
-                                                           math.exp(cur_loss)))
+                       'loss {:5.6f}'.format(epoch, batch_idx,  len(train_X) // args.batch_size, lr,
+                                                           elapsed * 1000 / args.log_interval, cur_loss))
             output_s(message, message_filename)
             total_loss = 0
             start_time = time.time()
@@ -193,12 +192,12 @@ if __name__ == "__main__":
             # test_loss = evaluate(test_X, test_Y)
             test_loss = val_loss
             message = ('-' * 89
-                       + '\n| end of epoch {:3d} | time: {:5.6f}s | valid loss {:5.2f} | '
-                       'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
-                                                  val_loss, math.exp(val_loss))
-                       + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} | '
-                       'test ppl {:8.2f}\n'.format(epoch, (time.time() - epoch_start_time),
-                                                   test_loss, math.exp(test_loss))
+                       + '\n| end of epoch {:3d} | time: {:5.6f}s | valid loss {:5.2f} '
+                       .format(epoch, (time.time() - epoch_start_time),
+                                                  val_loss)
+                       + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} '
+                       .format(epoch, (time.time() - epoch_start_time),
+                                                   test_loss)
                        + '-' * 89)
             output_s(message, message_filename)
 
@@ -225,6 +224,6 @@ if __name__ == "__main__":
     # Run on test data.
     test_loss = evaluate(test_X, test_Y)
     message = ('=' * 89
-               + '\n| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(test_loss, math.exp(test_loss))
+               + '\n| End of training | test loss {:5.2f}'.format(test_loss)
                + "\n" + '=' * 89)
     output_s(message, message_filename)
