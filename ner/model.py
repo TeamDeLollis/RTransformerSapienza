@@ -2,10 +2,9 @@ import torch.nn.functional as F
 import sys
 import os
 from torch import nn
-from RTransformer import RTransformer 
-
 base_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(base_path, '../models'))
+from RTransformer import RTransformer
 
 
 class RT(nn.Module):
