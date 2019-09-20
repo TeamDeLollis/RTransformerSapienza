@@ -117,7 +117,7 @@ def evaluate(data_X, data_Y):
     false_pred = 0
     total_pred = 0
 
-    confusion_matrix = torch.zeros(8, 8, dtype=torch.float)
+    confusion_matrix = torch.zeros(9, 9, dtype=torch.float)
     if args.cuda:
         confusion_matrix.to(device)
 
