@@ -11,20 +11,20 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--cuda', action='store_false')
 parser.add_argument('--batch_size', type=int, default=16)
-parser.add_argument('--dropout', type=float, default=0.25)
-parser.add_argument('--emb_dropout', type=float, default=0.15)
+parser.add_argument('--dropout', type=float, default=0.45)
+parser.add_argument('--emb_dropout', type=float, default=0.35)
 parser.add_argument('--clip', type=float, default=0.35)
 parser.add_argument('--epochs', type=int, default=10)
-parser.add_argument('--ksize', type=int, default=9)
-parser.add_argument('--n_level', type=int, default=3)
+parser.add_argument('--ksize', type=int, default=20)
+parser.add_argument('--n_level', type=int, default=5)
 parser.add_argument('--log-interval', type=int, default=2500, metavar='N')
-parser.add_argument('--lr', type=float, default=0.001)
+parser.add_argument('--lr', type=float, default=0.01)
 parser.add_argument('--optim', type=str, default='Adam')
-parser.add_argument('--rnn_type', type=str, default='LSTM') # o gru?
-parser.add_argument('--d_model', type=int, default=128)
-parser.add_argument('--n', type=int, default=1)
+parser.add_argument('--rnn_type', type=str, default='GRU') # o gru?
+parser.add_argument('--d_model', type=int, default=256)
+parser.add_argument('--n', type=int, default=3)
 parser.add_argument('--h', type=int, default=8)
-parser.add_argument('--seed', type=int, default=1111)
+parser.add_argument('--seed', type=int, default=22)
 parser.add_argument('--permute', action='store_true', default=False)
 parser.add_argument('--corpus', action='store_true',
                     help='force re-make the corpus (default: False)')
@@ -48,17 +48,10 @@ train_y = corpus.trainY
 test_data = corpus.testX
 test_y = corpus.testY
 
-eval_batch_size = 10
-
-#train_data = batchify(corpus.train, args.batch_size, args)
-#val_data = batchify(corpus.valid, eval_batch_size, args)
-#test_data = batchify(corpus.test, eval_batch_size, args)
-
 n_words = len(corpus.dictionary)
 
 batch_size = args.batch_size
 n_classes = 10
-input_channels = 1
 epochs = args.epochs
 steps = 0
 dropout = args.dropout
@@ -128,7 +121,7 @@ def test():
     model.eval()
     test_loss = 0
     correct = 0
-    test_dim = 500
+    test_dim = 2000
     with torch.no_grad():
         sequence = np.random.randint(0, high=len(test_data), size=test_dim) #test on 500 elements from the test set
         for index in sequence:
@@ -141,11 +134,14 @@ def test():
             pred = output.data.max(1, keepdim=True)[1]
             if (pred.item() + 1) == target:
                 correct += 1
+            else:
+                if np.abs(pred.item() + 1 - target) < 1:
+                    correct += 0.5
             test_loss += loss.item()
 
-        message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+        message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.1f}%)\n'.format(
             test_loss/test_dim, correct, test_dim,
-            100. * correct / test_dim))
+            100 * correct / test_dim))
         output_s(message, message_filename)
         return test_loss
 
@@ -156,8 +152,4 @@ if __name__ == "__main__":
         train(epoch)
         save(model, model_filename)
         test()
-        if epoch % 10 == 0:
-            lr /= 10
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = lr
 
