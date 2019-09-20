@@ -149,7 +149,6 @@ def test():
                 if np.abs(pred.item() + 1 - target) < 1:
                     correct += 0.5
             test_loss += loss.item()
-            print(i)
         message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.1f}%)\n'.format(
             test_loss/test_dim, correct, test_dim,
             100 * correct / test_dim))
