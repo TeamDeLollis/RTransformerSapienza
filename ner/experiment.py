@@ -150,13 +150,11 @@ def evaluate(data_X, data_Y):
             total_loss += loss.item()  # (data.size(1) - eff_history) * loss.item()
             # processed_data_size += data.size(1) - eff_history
         accuracy = confusion_matrix.trace() / confusion_matrix.sum()
-        rows = confusion_matrix.sum(dim=0)
-        rows[rows!=rows] = 0
-        precision = confusion_matrix.diag() / rows
+        precision = confusion_matrix.diag() / confusion_matrix.sum(dim=0)
+        precision[precision!=precision] = 0
         
-        columns = confusion_matrix.sum(dim=1)
-        columns[columns!=columns] = 0
-        recall = confusion_matrix.diag() / columns
+        recall = confusion_matrix.diag() / confusion_matrix.sum(dim=1)
+        recall[recall!=recall] = 0
         print('confusion matrix', confusion_matrix)
         
         f1 = 2 * (precision.mean() * recall.mean())/(precision.mean() + recall.mean())
