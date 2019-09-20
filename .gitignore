@@ -1,3 +1,6 @@
 /audio/data/
 /image/data/
 /language_word/data/
+.idea/
+*.pyc
+ner/data/corpus

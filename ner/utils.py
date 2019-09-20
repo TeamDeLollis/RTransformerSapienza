@@ -55,7 +55,7 @@ class Corpus(object):
                     split = line.split(' ')
                     if split[0] != '-DOCSTART-':
                         word = split[0]
-                        print(word)
+                        # print(word)
                         self.dictionary.add_word(word)
 
         # Tokenize file content
@@ -65,51 +65,49 @@ class Corpus(object):
         Y.append([])
         with open(path, 'r') as f:
             for line in f:
-                print(line)
+                # print(line)
                 if line != '\n':
                     split = line.split(' ')
                     if split[0] != '-DOCSTART-':
                         skip = False
                         word = split[0]
-                        print(word)
+                        # print(word)
                         target = split[-1].rstrip()
-                        print(target)
+                        # print(target)
                         X[line_num].append(self.dictionary.word2idx[word])
                         Y[line_num].append(self.categories[target])
                     else:
                         skip = True
                 elif not skip:
-                    print('*'*10)
+                    # print('*'*1 )
                     X[line_num] = torch.tensor(X[line_num])
                     Y[line_num] = torch.tensor(Y[line_num])
                     X.append([])
                     Y.append([])
                     line_num += 1
+        X.pop()
+        Y.pop()
         return X, Y
 
 
 def get_batch(train, test, batch_size, i):  # args, seq_len=None, evaluation=False):
-    num_seq = min(batch_size, len(train) - 1 - i * batch_size)
-    X = train[i * batch_size: i * batch_size + num_seq]
-    Y = test[i * batch_size: i * batch_size + num_seq]
+    return train[i].unsqueeze(0), test[i].unsqueeze(0)
+    # num_seq = min(batch_size, len(train) - 1 - i * batch_size)
+    # X = train[i * batch_size: i * batch_size + num_seq]
+    # Y = test[i * batch_size: i * batch_size + num_seq]
     # print(len(Y))
 
-    max_len = max(*[len(s) for s in X])
+    # max_len = max(*[s.size() for s in X])
     # num_cat = max(*[c for y in Y for c in y]) + 1
-    torchX = torch.zeros(batch_size, max_len, dtype=torch.long)
-    torchY = torch.zeros(batch_size, max_len, dtype=torch.long) + 8  # VERY IMPORTANT to add 8
-    for j in range(len(X)):
-        torchX[j, :len(X[j])] = torch.tensor(X[j])
-        torchY[j, :len(Y[j])] = torch.tensor(Y[j])
-        # for k in range(len(Y[j]):
-        #    torchY[j, k] = one_hot(Y[j][k])
-    return torchX, torchY
+    # torchX = torch.zeros(batch_size, max_len, dtype=torch.long)
+    # torchY = torch.zeros(batch_size, max_len, dtype=torch.long) + 8  # VERY IMPORTANT to add 8
+    # for j in range(len(X)):
+    #     torchX[j, :len(X[j])] = X[j]
+    #     torchY[j, :len(Y[j])] = Y[j]
+    #     # for k in range(len(Y[j]):
+    #     #    torchY[j, k] = one_hot(Y[j][k])
+    # return torchX, torchY
 
-
-def one_hot(i, max):
-    vector = torch.zeros(max)
-    vector[i] = 1
-    return vector
 
 # def batchify(data, batch_size, args):
 #    """The output should have size [L x batch_size], where L could be a long sequence length"""
