@@ -157,6 +157,7 @@ def evaluate(data_X, data_Y):
         columns = confusion_matrix.sum(dim=1)
         columns[columns!=columns] = 0
         recall = confusion_matrix.diag() / columns
+        print('confusion matrix', confusion_matrix)
         
         f1 = 2 * (precision.mean() * recall.mean())/(precision.mean() + recall.mean())
         print('2*precision*recall', 2 * (precision.mean() * recall.mean()))
