@@ -123,6 +123,7 @@ def train(ep):
             output_s(message, message_filename)
             train_loss = 0
 
+        pred = output.data.max(1, keepdim=True)[1]
         if int(pred.item() + 1) == int(target):
             correct += 1
         else:
