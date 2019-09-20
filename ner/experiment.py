@@ -116,6 +116,11 @@ def evaluate(data_X, data_Y):
     total_loss = 0
     false_pred = 0
     total_pred = 0
+
+    confusion_matrix = torch.zeros(8, 8, dtype=torch.float)
+    if args.cuda:
+        confusion_matrix.to(device)
+
     # processed_data_size = 0
     with torch.no_grad():
         for batch_idx, i in enumerate(range(0, len(data_X) - 1, args.batch_size)):
@@ -132,15 +137,24 @@ def evaluate(data_X, data_Y):
             # final_output = output[:, eff_history:].contiguous().view(-1, n_words)
             # final_target = targets[:, eff_history:].contiguous().view(-1)
 
-            pred = targets - output.argmax(-1)
-            false_pred += pred.nonzero().size()[0]
+            pred = output.argmax(-1)
+            # pred = targets - output.argmax(-1)
+            # false_pred += pred.nonzero().size()[0]
+            for j in range(data.size()[0]):
+                for k in range(data.size()[1]):
+                    confusion_matrix[pred[j,k], targets[j,k]] += 1
 
             loss = criterion(output.transpose(2, 1), targets)
 
             # Note that we don't add TAR loss here
             total_loss += loss.item()  # (data.size(1) - eff_history) * loss.item()
             # processed_data_size += data.size(1) - eff_history
-        return total_loss / (len(data_X) / args.batch_size), 1 - (false_pred / n_words_test) # / processed_data_size
+        accuracy = confusion_matrix.trace() / confusion_matrix.sum()
+        precision = confusion_matrix.diag() / confusion_matrix.sum(dim=0)
+        recall = confusion_matrix.diag() / confusion_matrix.sum(dim=1)
+        f1 = 2 * (precision.mean() * recall.mean())/(precision.mean() + recall.mean())
+        return (total_loss / (len(data_X) / args.batch_size), accuracy, f1)
+                # 1 - (false_pred / n_words_test) # / processed_data_size
 
 
 def train():
@@ -194,17 +208,18 @@ if __name__ == "__main__":
         for epoch in range(1, args.epochs+1):
             epoch_start_time = time.time()
             train()
-            val_loss, val_accuracy = evaluate(test_X, test_Y)
+            val_loss, val_accuracy, val_f1 = evaluate(test_X, test_Y)
             # test_loss = evaluate(test_X, test_Y)
             test_loss = val_loss
             test_accuracy = val_accuracy
+            test_f1 = val_f1
             message = ('-' * 89
-                       + '\n| end of epoch {:3d} | time: {:5.6f}s | valid loss {:5.2f} | valid accuracy {:5.6f} '
+                       + '\n| end of epoch {:3d} | time: {:5.6f}s | valid loss {:5.2f} | valid accuracy {:5.6f} | valid f1 {:5.6f} '
                        .format(epoch, (time.time() - epoch_start_time),
-                                                  val_loss, val_accuracy)
-                       + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} | test accuracy {:5.6f} '
+                                                  val_loss, val_accuracy, val_f1)
+                       + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} | test accuracy {:5.6f} | valid f1 {:5.6f} '
                        .format(epoch, (time.time() - epoch_start_time),
-                                                   test_loss, test_accuracy)
+                                                   test_loss, test_accuracy, test_f1)
                        + '-' * 89)
             output_s(message, message_filename)
 
