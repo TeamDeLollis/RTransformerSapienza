@@ -21,7 +21,7 @@ parser.add_argument('--log-interval', type=int, default=2500, metavar='N')
 parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--optim', type=str, default='SGD')
 parser.add_argument('--rnn_type', type=str, default='GRU') # o gru?
-parser.add_argument('--d_model', type=int, default=256)
+parser.add_argument('--d_model', type=int, default=64)
 parser.add_argument('--n', type=int, default=1)
 parser.add_argument('--h', type=int, default=8)
 parser.add_argument('--seed', type=int, default=47474)
@@ -156,7 +156,9 @@ def test():
                 if np.abs(pred.item() + 1 - target) < 1:
                     correct += 0.5
             test_loss += loss.item()
+
             message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.1f}%)\n'.format(
+
             test_loss/test_dim, correct, test_dim,
             100 * correct / test_dim))
         output_s(message, message_filename)
