@@ -159,6 +159,9 @@ def evaluate(data_X, data_Y):
         recall = confusion_matrix.diag() / columns
         
         f1 = 2 * (precision.mean() * recall.mean())/(precision.mean() + recall.mean())
+        print('2*precision*recall', 2 * (precision.mean() * recall.mean()))
+        print('precision+recall', precision.mean() + recall.mean())
+        print('f1',f1)
         return (total_loss / (len(data_X) / args.batch_size), accuracy, f1)
                 # 1 - (false_pred / n_words_test) # / processed_data_size
 
@@ -213,7 +216,7 @@ if __name__ == "__main__":
         all_vloss = []
         for epoch in range(1, args.epochs+1):
             epoch_start_time = time.time()
-            train()
+            #train()
             val_loss, val_accuracy, val_f1 = evaluate(test_X, test_Y)
             # test_loss = evaluate(test_X, test_Y)
             test_loss = val_loss
@@ -223,7 +226,7 @@ if __name__ == "__main__":
                        + '\n| end of epoch {:3d} | time: {:5.6f}s | valid loss {:5.2f} | valid accuracy {:5.6f} | valid f1 {:5.6f} '
                        .format(epoch, (time.time() - epoch_start_time),
                                                   val_loss, val_accuracy, val_f1)
-                       + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} | test accuracy {:5.6f} | valid f1 {:5.6f} '
+                       + '\n| end of epoch {:3d} | time: {:5.6f}s | test loss {:5.2f} | test accuracy {:5.6f} | test f1 {:5.6f} '
                        .format(epoch, (time.time() - epoch_start_time),
                                                    test_loss, test_accuracy, test_f1)
                        + '-' * 89)
