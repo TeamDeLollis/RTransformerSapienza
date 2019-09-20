@@ -94,8 +94,8 @@ def train(ep):
     global steps
     train_loss = 0
     model.train()
-    batch_idx = 0
     steps = 0
+    correct = 0
     sequence = np.arange(len(train_data)) #in modo che siano presi in modo casuale
     np.random.shuffle(sequence)
     for index in sequence:
@@ -122,7 +122,14 @@ def train(ep):
                 ep, train_loss.item()/args.log_interval, steps, pred.item() + 1, target))
             output_s(message, message_filename)
             train_loss = 0
-        batch_idx += 1
+
+        if int(pred.item() + 1) == int(target):
+            correct += 1
+        else:
+            if np.abs(pred.item() + 1 - target) < 1:
+                correct += 0.5
+    print("accuracy on the training set : ", correct/len(sequence))
+
 
 def test():
     model.eval()
@@ -149,8 +156,7 @@ def test():
                 if np.abs(pred.item() + 1 - target) < 1:
                     correct += 0.5
             test_loss += loss.item()
-            print(i)
-        message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.1f}%)\n'.format(
+            message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.1f}%)\n'.format(
             test_loss/test_dim, correct, test_dim,
             100 * correct / test_dim))
         output_s(message, message_filename)
