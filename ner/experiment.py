@@ -155,12 +155,12 @@ def evaluate(data_X, data_Y):
         
         recall = confusion_matrix.diag() / confusion_matrix.sum(dim=1)
         recall[recall!=recall] = 0
-        print('confusion matrix', confusion_matrix)
+        #print('confusion matrix', confusion_matrix)
         
         f1 = 2 * (precision.mean() * recall.mean())/(precision.mean() + recall.mean())
-        print('2*precision*recall', 2 * (precision.mean() * recall.mean()))
-        print('precision+recall', precision.mean() + recall.mean())
-        print('f1',f1)
+        #print('2*precision*recall', 2 * (precision.mean() * recall.mean()))
+        #print('precision+recall', precision.mean() + recall.mean())
+        #print('f1',f1)
         return (total_loss / (len(data_X) / args.batch_size), accuracy, f1)
                 # 1 - (false_pred / n_words_test) # / processed_data_size
 
@@ -215,7 +215,7 @@ if __name__ == "__main__":
         all_vloss = []
         for epoch in range(1, args.epochs+1):
             epoch_start_time = time.time()
-            #train()
+            train()
             val_loss, val_accuracy, val_f1 = evaluate(test_X, test_Y)
             # test_loss = evaluate(test_X, test_Y)
             test_loss = val_loss
