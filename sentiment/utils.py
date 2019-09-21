@@ -122,7 +122,7 @@ class Corpus_2(object):
         self.trainX, self.trainY = self.tokenize(os.path.join(pathC, 'train'))
         self.testX, self.testY = self.tokenize(os.path.join(pathC, 'test'))
         """
-        pathC = '/content/drive/My Drive/NN/R-Transformer/sentimentModel/iclImdb/'
+        pathC = '/content/drive/My Drive/NN/R-Transformer/sentimentModel/aclImdb/'
 
         self.trainX1, self.trainY1 = self.tokenize(os.path.join(pathC, 'train/pos'))
         self.trainX2, self.trainY2 = self.tokenize(os.path.join(pathC, 'train/neg'))
