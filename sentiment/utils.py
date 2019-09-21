@@ -136,6 +136,7 @@ class Corpus_2(object):
 
     def tokenize(self, path):
         # fare un vettore con tutte le lunghezze delle frasi per
+        print(path)
         assert os.path.exists(path)
         # Add words to the dictionary
         max_seq_len = 0
