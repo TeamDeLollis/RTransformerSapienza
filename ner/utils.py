@@ -90,7 +90,7 @@ class Corpus(object):
         return X, Y
 
 
-def get_batch(train, test, batch_size, i, args):  # args, seq_len=None, evaluation=False):
+def get_batch(train, test, batch_size, i):  # args, seq_len=None, evaluation=False):
     # return train[i].unsqueeze(0), test[i].unsqueeze(0)
     num_seq = min(batch_size, len(train) - 1 - i * batch_size)
     X = train[i * batch_size: i * batch_size + num_seq]
@@ -99,9 +99,6 @@ def get_batch(train, test, batch_size, i, args):  # args, seq_len=None, evaluati
     max_len = max(*[s.size()[0] for s in X])
     torchX = torch.zeros(batch_size, max_len, dtype=torch.long)
     torchY = torch.zeros(batch_size, max_len, dtype=torch.long) + 8  # VERY IMPORTANT to add 8
-    if args.cuda:
-        torchX.cuda()
-        torchY.cuda()
     for j in range(len(X)):
         torchX[j, :len(X[j])] = X[j]
         torchY[j, :len(Y[j])] = Y[j]

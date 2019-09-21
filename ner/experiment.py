@@ -176,8 +176,8 @@ def train():
         # if i + args.seq_len - args.validseqlen >= train_data.size(1) - 1:
         #    continue
         data, targets = get_batch(train_X, train_Y, args.batch_size, batch_idx, args)
-        # if args.cuda:
-        #    data, targets = data.cuda(), targets.cuda()
+        if args.cuda:
+            data, targets = data.cuda(), targets.cuda()
         optimizer.zero_grad()
         output = model(data)
 
