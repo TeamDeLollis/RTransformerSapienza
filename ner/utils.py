@@ -1,6 +1,8 @@
 import os
 import torch
 import pickle
+import glove_dict
+import numpy as np
 
 
 def data_generator(data_dir, args):
@@ -41,7 +43,17 @@ class Corpus(object):
                            'B-MISC': 7,
                            'O': 8}
         self.train_X, self.train_Y = self.tokenize(os.path.join(path, 'eng.train'))
-        self.test_X, self.test_Y = self.tokenize(os.path.join(path, 'eng.testa'))
+        self.test_X,  self.test_Y = self.tokenize(os.path.join(path, 'eng.testa'))
+
+        self.embedding_weights = np.zeros((len(self.dictionary), 100))
+        words_found = 0
+
+        for i, word in enumerate(self.dictionary.idx2word):
+            try:
+                self.embedding_weights[i] = glove_dict.glove[word]
+                words_found += 1
+            except KeyError:
+                self.embedding_weights[i] = np.random.normal(scale=0.6, size=(100,))
 
     def tokenize(self, path):
         """Tokenizes a text file."""

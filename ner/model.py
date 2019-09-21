@@ -1,3 +1,4 @@
+import torch
 import torch.nn.functional as F
 import sys
 import os
@@ -9,22 +10,21 @@ from RTransformer import RTransformer
 
 class RT(nn.Module):
     def __init__(self,  dict_size, input_size, output_size, h, rnn_type, ksize, n_level, n, 
-                 dropout=0.2, emb_dropout=0.2, cuda=False):
-        print("dict_size", dict_size)
-        print("input_size", input_size)
-        print("output_size", output_size)
+                 dropout=0.2, emb_dropout=0.2, cuda=False, emb_weights=None):
+
         super(RT, self).__init__()
 
-        self.encoder = nn.Embedding(dict_size, input_size)
-        self.rt = RTransformer(input_size, rnn_type, ksize, n_level, n, h, dropout, cuda)
-        self.decoder = nn.Linear(input_size, output_size)
+        self.encoder, num_embeddings, embedding_dim = self.create_emb_layer(emb_weights)
+        # self.encoder = nn.Embedding(dict_size, input_size)
+        self.rt = RTransformer(embedding_dim, rnn_type, ksize, n_level, n, h, dropout, cuda)
+        self.decoder = nn.Linear(embedding_dim, output_size)
 
         self.drop = nn.Dropout(emb_dropout)
         self.emb_dropout = emb_dropout
         self.init_weights()
 
     def init_weights(self):
-        self.encoder.weight.data.normal_(0, 0.01)
+        # self.encoder.weight.data.normal_(0, 0.01)
         self.decoder.bias.data.fill_(0)
         self.decoder.weight.data.normal_(0, 0.01)
 
@@ -35,3 +35,12 @@ class RT(nn.Module):
         y = self.rt(emb)
         y = self.decoder(y)
         return F.log_softmax(y, dim=2)
+
+    def create_emb_layer(self, weights_matrix, non_trainable=False):
+        num_embeddings, embedding_dim = weights_matrix.shape
+        emb_layer = nn.Embedding(num_embeddings, embedding_dim)
+        emb_layer.load_state_dict({'weight': torch.tensor(weights_matrix)})
+        if non_trainable:
+            emb_layer.weight.requires_grad = False
+
+        return emb_layer, num_embeddings, embedding_dim

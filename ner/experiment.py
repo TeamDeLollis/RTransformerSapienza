@@ -25,9 +25,9 @@ parser.add_argument('--log-interval', type=int, default=200, metavar='N')
 parser.add_argument('--lr', type=float, default=2)
 parser.add_argument('--optim', type=str, default='SGD')
 parser.add_argument('--rnn_type', type=str, default='LSTM')
-parser.add_argument('--d_model', type=int, default=128)
+parser.add_argument('--d_model', type=int, default=100)
 parser.add_argument('--n', type=int, default=1)
-parser.add_argument('--h', type=int, default=8)
+parser.add_argument('--h', type=int, default=10)
 parser.add_argument('--seed', type=int, default=1111)
 parser.add_argument('--validseqlen', type=int, default=40)
 parser.add_argument('--seq_len', type=int, default=80)
@@ -55,6 +55,7 @@ train_X = corpus.train_X
 train_Y = corpus.train_Y
 test_X = corpus.test_X
 test_Y = corpus.test_Y
+emb_weights = corpus.embedding_weights
 
 if args.cuda:
     for i in range(len(train_X)):
@@ -73,10 +74,9 @@ dropout = args.dropout
 emb_dropout = args.emb_dropout
 tied = args.tied
 
-
 model = RT(n_words, args.d_model, n_categories, h=args.h, rnn_type=args.rnn_type, ksize=args.ksize,
-           n_level=args.n_level,  n=args.n, dropout=dropout, emb_dropout=emb_dropout, cuda=args.cuda)
-
+           n_level=args.n_level,  n=args.n, dropout=dropout, emb_dropout=emb_dropout,
+           cuda=args.cuda, emb_weights=emb_weights)
 
 if args.cuda:
     # noinspection PyUnresolvedReferences
