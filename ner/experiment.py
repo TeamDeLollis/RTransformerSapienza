@@ -214,10 +214,10 @@ if __name__ == "__main__":
                 best_vloss = val_loss
 
             # Anneal the learning rate if the validation loss plateaus
-            if epoch > 5 and val_loss >= max(all_vloss[-5:]):
-                lr = lr / 2.
-                for param_group in optimizer.param_groups:
-                    param_group['lr'] = lr
+            # if epoch > 5 and val_loss >= max(all_vloss[-5:]):
+            #     lr = lr / 2.
+            #     for param_group in optimizer.param_groups:
+            #         param_group['lr'] = lr
             all_vloss.append(val_loss)
 
     except KeyboardInterrupt:
