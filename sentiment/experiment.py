@@ -23,7 +23,7 @@ parser.add_argument('--optim', type=str, default='Adam')
 parser.add_argument('--rnn_type', type=str, default='LSTM') # o gru?
 parser.add_argument('--d_model', type=int, default=128)
 parser.add_argument('--n', type=int, default=1)
-parser.add_argument('--h', type=int, default=5)
+parser.add_argument('--h', type=int, default=4)
 parser.add_argument('--seed', type=int, default=333)
 parser.add_argument('--permute', action='store_true', default=False)
 parser.add_argument('--corpus', action='store_true',
