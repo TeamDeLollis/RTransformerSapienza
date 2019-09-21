@@ -95,8 +95,10 @@ def get_batch(train, test, batch_size, i):  # args, seq_len=None, evaluation=Fal
     num_seq = min(batch_size, len(train) - 1 - i * batch_size)
     X = train[i * batch_size: i * batch_size + num_seq]
     Y = test[i * batch_size: i * batch_size + num_seq]
-
-    max_len = max(*[s.size()[0] for s in X])
+    if len(X) == 1:
+        max_len = X[0].size()[0]
+    else:
+        max_len = max(*[s.size()[0] for s in X])
     torchX = torch.zeros(batch_size, max_len, dtype=torch.long)
     torchY = torch.zeros(batch_size, max_len, dtype=torch.long) + 8  # VERY IMPORTANT to add 8
     for j in range(len(X)):
