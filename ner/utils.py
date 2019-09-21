@@ -90,23 +90,22 @@ class Corpus(object):
         return X, Y
 
 
-def get_batch(train, test, batch_size, i):  # args, seq_len=None, evaluation=False):
-    return train[i].unsqueeze(0), test[i].unsqueeze(0)
-    # num_seq = min(batch_size, len(train) - 1 - i * batch_size)
-    # X = train[i * batch_size: i * batch_size + num_seq]
-    # Y = test[i * batch_size: i * batch_size + num_seq]
-    # print(len(Y))
+def get_batch(train, test, batch_size, i, args):  # args, seq_len=None, evaluation=False):
+    # return train[i].unsqueeze(0), test[i].unsqueeze(0)
+    num_seq = min(batch_size, len(train) - 1 - i * batch_size)
+    X = train[i * batch_size: i * batch_size + num_seq]
+    Y = test[i * batch_size: i * batch_size + num_seq]
 
-    # max_len = max(*[s.size() for s in X])
-    # num_cat = max(*[c for y in Y for c in y]) + 1
-    # torchX = torch.zeros(batch_size, max_len, dtype=torch.long)
-    # torchY = torch.zeros(batch_size, max_len, dtype=torch.long) + 8  # VERY IMPORTANT to add 8
-    # for j in range(len(X)):
-    #     torchX[j, :len(X[j])] = X[j]
-    #     torchY[j, :len(Y[j])] = Y[j]
-    #     # for k in range(len(Y[j]):
-    #     #    torchY[j, k] = one_hot(Y[j][k])
-    # return torchX, torchY
+    max_len = max(*[s.size()[0] for s in X])
+    torchX = torch.zeros(batch_size, max_len, dtype=torch.long)
+    torchY = torch.zeros(batch_size, max_len, dtype=torch.long) + 8  # VERY IMPORTANT to add 8
+    if args.cuda:
+        torchX.cuda()
+        torchY.cuda()
+    for j in range(len(X)):
+        torchX[j, :len(X[j])] = X[j]
+        torchY[j, :len(Y[j])] = Y[j]
+    return torchX, torchY
 
 
 # def batchify(data, batch_size, args):

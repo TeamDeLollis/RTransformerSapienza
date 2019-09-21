@@ -175,7 +175,7 @@ def train():
     for batch_idx, i in enumerate(range(0, len(train_X) - 1, args.batch_size)):  # args.validseqlen)):
         # if i + args.seq_len - args.validseqlen >= train_data.size(1) - 1:
         #    continue
-        data, targets = get_batch(train_X, train_Y, args.batch_size, batch_idx)  # args)
+        data, targets = get_batch(train_X, train_Y, args.batch_size, batch_idx, args)
         # if args.cuda:
         #    data, targets = data.cuda(), targets.cuda()
         optimizer.zero_grad()
