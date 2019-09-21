@@ -145,7 +145,6 @@ class Corpus_2(object):
         targets = []
         max_length = 0
         for filename in glob.glob(os.path.join(path,'*.txt')):
-            print(filename)
             file_number, target_with_path = filename.split('_')
             target = target_with_path.split('.')[0]
             target = int(target)
