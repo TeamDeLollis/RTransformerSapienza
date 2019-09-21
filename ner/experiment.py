@@ -129,8 +129,8 @@ def evaluate(data_X, data_Y):
             #   continue
             # data, targets = get_batch(data_source, i, args, evaluation=True)
             data, targets = get_batch(data_X, data_Y, args.batch_size, batch_idx)  # args)
-            # if args.cuda:
-            #    data, targets = data.cuda(), targets.cuda()
+            if args.cuda:
+                data, targets = data.cuda(), targets.cuda()
             output = model(data)
             # Discard the effective history, just like in training
             # eff_history = args.seq_len - args.validseqlen
