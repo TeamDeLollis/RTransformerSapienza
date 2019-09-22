@@ -118,12 +118,14 @@ class Corpus_2(object):
         """
         pathC = '/content/drive/My Drive/NN/R-Transformer/sentimentModel'
         #pathC = '/home/lorenz/Desktop/Neural Networks/project/R-transformer-master/sentiment/data/'
-        self.max_l = 2470 #found and has to be the same for both test and train
+        
         self.trainX, self.trainY = self.tokenize(os.path.join(pathC, 'train'))
         self.testX, self.testY = self.tokenize(os.path.join(pathC, 'test'))
         """
         pathC = '/content/drive/My Drive/NN/R-Transformer/sentimentModel/aclImdb/'
 
+        self.max_l = 2470 #found and has to be the same for both test and train
+        
         self.trainX1, self.trainY1 = self.tokenize(os.path.join(pathC, 'train/pos'))
         self.trainX2, self.trainY2 = self.tokenize(os.path.join(pathC, 'train/neg'))
         self.testX1, self.testY1 = self.tokenize(os.path.join(pathC, 'test/pos'))
