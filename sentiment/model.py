@@ -43,7 +43,7 @@ class RT(nn.Module):
         y = y.transpose(1,0)
         #y = y.transpose(-2, -1)
         y = self.decoder_extra(y)
-
+        y = y.transpose(0,1)
         #y =  y[: , -1, :]
         #return F.softmax(y, dim=1)
         return F.log_softmax(y, dim=1)
