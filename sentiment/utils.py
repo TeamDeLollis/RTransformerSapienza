@@ -149,6 +149,8 @@ class Corpus_2(object):
         for filename in glob.glob(os.path.join(path,'*.txt')):
             file_number, target_with_path = filename.split('_')
             target = target_with_path.split('.')[0]
+            if len(target.split('(')) > 1:
+                target = target.split('(')[0]
             target = int(target)
             with open(filename, 'r') as f:
                 content = f.read()
