@@ -21,7 +21,7 @@ parser.add_argument('--log-interval', type=int, default=2500, metavar='N')
 parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--optim', type=str, default='Adam')
 parser.add_argument('--rnn_type', type=str, default='GRU') # o gru?
-parser.add_argument('--d_model', type=int, default=128)
+parser.add_argument('--d_model', type=int, default=1)
 parser.add_argument('--n', type=int, default=1)
 parser.add_argument('--h', type=int, default=8)
 parser.add_argument('--seed', type=int, default=47474)
@@ -49,8 +49,8 @@ test_data = corpus.testX
 test_y = corpus.testY
 
 
-print(train_data[0])
-print(test_data[2325].size())
+#print(train_data[0])
+#print(test_data[2325].size())
 max_seq_length = len(train_data[0])
 
 test_dim = 2000
