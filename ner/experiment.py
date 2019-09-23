@@ -40,6 +40,9 @@ args = parser.parse_args()
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 device = torch.device("cuda")
+if args.cuda:
+    torch.cuda.manual_seed(args.seed)
+    torch.backends.cudnn.deterministic = True
 
 base_path = os.path.dirname(os.path.realpath(__file__))
 data_dir = os.path.join(base_path, '{}/'.format(args.data))
