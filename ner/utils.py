@@ -51,6 +51,7 @@ class Corpus(object):
         for i, word in enumerate(self.dictionary.idx2word):
             try:
                 self.embedding_weights[i] = glove_dict.glove[word]
+                print(glove_dict.glove[word].size())
                 words_found += 1
             except KeyError:
                 self.embedding_weights[i] = np.random.normal(scale=0.6, size=(300,))
