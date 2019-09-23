@@ -41,8 +41,8 @@ data_dir = os.path.join(base_path,'data/')
 print(data_dir)
 s_dir = os.path.join(base_path,'output/')
 
-#corpus = data_generator_2(data_dir, args)
-corpus = data_generator(data_dir, args)
+corpus = data_generator_2(data_dir, args)
+#corpus = data_generator(data_dir, args)
 
 train_data = corpus.trainX
 train_y = corpus.trainY
