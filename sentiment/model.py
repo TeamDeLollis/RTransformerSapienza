@@ -37,8 +37,8 @@ class RT(nn.Module):
         return F.log_softmax(o, dim=1)
         """
         #x = x.transpose(-2,-1)
-        #emb = self.drop(self.encoder(x))
-        y = self.rt(x.unsqueeze(0))
+        emb = self.drop(self.encoder(x))
+        y = self.rt(x)
         y = self.decoder(y).squeeze(0)
         y = y.transpose(1,0)
         #y = y.transpose(-2, -1)
