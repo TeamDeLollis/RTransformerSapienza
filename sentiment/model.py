@@ -8,11 +8,12 @@ import torch
 
 
 class RT(nn.Module):
-    def __init__(self, d_model, input_size, num_classes, h, rnn_type, ksize, n_level, n, dropout=0.2, emb_dropout=0.2, tied_weights=False, cuda=False):
+    def __init__(self, d_model, input_size, num_classes, h, rnn_type, ksize, n_level, n, dropout=0.2, emb_dropout=0.2, tied_weights=False, cuda=False, max_len=0):
         super(RT, self).__init__()
         self.encoder = nn.Embedding(input_size, d_model) #input_size embedding with dimension d_model
         self.rt = RTransformer(d_model, rnn_type, ksize, n_level, n, h, dropout, cuda)
         self.decoder = nn.Linear(d_model, num_classes)
+        self.decoder_extra = nn.Linear(max_len,1)
 
         if tied_weights:
             self.decoder.weight = self.encoder.weight
@@ -38,9 +39,12 @@ class RT(nn.Module):
         #x = x.transpose(-2,-1)
         emb = self.drop(self.encoder(x))
         y = self.rt(emb)
-        y = self.decoder(y)
+        y = self.decoder(y).squeeze(0)
+        y = y.transpose(1,0)
         #y = y.transpose(-2, -1)
-        y =  y[: , -1, :]
+        y = self.decoder_extra(y)
+        y = y.transpose(0,1)
+        #y =  y[: , -1, :]
         #return F.softmax(y, dim=1)
         return F.log_softmax(y, dim=1)
 

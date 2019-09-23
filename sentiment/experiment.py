@@ -3,7 +3,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 import sys, os
 sys.path.append("../../")
-from utils import data_generator
+from utils import data_generator_2
 from model import RT
 import numpy as np
 import argparse
@@ -12,19 +12,19 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--cuda', action='store_true')
 parser.add_argument('--batch_size', type=int, default=16)
 parser.add_argument('--dropout', type=float, default=0.35)
-parser.add_argument('--emb_dropout', type=float, default=0.1)
+parser.add_argument('--emb_dropout', type=float, default=0.15)
 parser.add_argument('--clip', type=float, default=0.35)
-parser.add_argument('--epochs', type=int, default=15)
-parser.add_argument('--ksize', type=int, default=4)
-parser.add_argument('--n_level', type=int, default=5)
+parser.add_argument('--epochs', type=int, default=10)
+parser.add_argument('--ksize', type=int, default=9)
+parser.add_argument('--n_level', type=int, default=1)
 parser.add_argument('--log-interval', type=int, default=2500, metavar='N')
 parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--optim', type=str, default='Adam')
-parser.add_argument('--rnn_type', type=str, default='LSTM') # o gru?
-parser.add_argument('--d_model', type=int, default=128)
+parser.add_argument('--rnn_type', type=str, default='GRU') # o gru?
+parser.add_argument('--d_model', type=int, default=1)
 parser.add_argument('--n', type=int, default=1)
-parser.add_argument('--h', type=int, default=4)
-parser.add_argument('--seed', type=int, default=333)
+parser.add_argument('--h', type=int, default=1)
+parser.add_argument('--seed', type=int, default=47474)
 parser.add_argument('--permute', action='store_true', default=False)
 parser.add_argument('--corpus', action='store_true',
                     help='force re-make the corpus (default: False)')
@@ -41,12 +41,18 @@ data_dir = os.path.join(base_path,'data/')
 print(data_dir)
 s_dir = os.path.join(base_path,'output/')
 
-corpus = data_generator(data_dir, args)
+corpus = data_generator_2(data_dir, args)
+#corpus = data_generator(data_dir, args)
 
 train_data = corpus.trainX
 train_y = corpus.trainY
 test_data = corpus.testX
 test_y = corpus.testY
+
+
+#print(train_data[0])
+#print(test_data[2325].size())
+max_seq_length = len(train_data[0])
 
 test_dim = 2000
 sequence = np.random.randint(0, high=len(test_data), size=test_dim)
@@ -63,7 +69,7 @@ tied = args.tied
 
 
 model = RT(args.d_model, n_words, n_classes, h=args.h, rnn_type=args.rnn_type, ksize=args.ksize, n_level=args.n_level,
-           n=args.n, dropout=args.dropout, emb_dropout=args.dropout, tied_weights=args.tied, cuda=args.cuda)
+           n=args.n, dropout=args.dropout, emb_dropout=args.dropout, tied_weights=args.tied, cuda=args.cuda, max_len=max_seq_length)
 if args.cuda:
     model.to(device)
 
@@ -157,9 +163,7 @@ def test():
                 if np.abs(pred.item() + 1 - target) < 1:
                     correct += 0.5
             test_loss += loss.item()
-
             message = ('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.1f}%)\n'.format(
-
             test_loss/test_dim, correct, test_dim,
             100 * correct / test_dim))
         output_s(message, message_filename)
