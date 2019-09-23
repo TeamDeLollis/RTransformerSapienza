@@ -111,7 +111,7 @@ def train(ep):
         optimizer.zero_grad()
         output = model(data.unsqueeze(0))
         #print(torch.tensor([target]))
-        print(output.shape)
+        print(output)
         if args.cuda:
             loss = F.nll_loss(output, torch.tensor([target - 1]).cuda())
         else:
